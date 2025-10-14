@@ -2,7 +2,6 @@ package com.example.datingapp.utils
 
 import com.example.datingapp.models.Message
 import com.example.datingapp.models.User
-
 object DummyData {
 
     val users = mutableListOf(
