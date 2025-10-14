@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="160dp"
+    android:background="#E76E6E">
+
+    <ImageView android:src="@drawable/ic_profile_placeholder"
+        android:layout_width="64dp" android:layout_height="64dp"/>
+    <TextView android:id="@+id/nav_name" android:text="User"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff" android:textSize="16sp" android:layout_marginTop="8dp"/>
+    <TextView android:id="@+id/nav_email" android:text="you@example.com"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff" android:textSize="12sp"/>
+</LinearLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/gradient_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="28dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <ImageView
+            android:src="@drawable/ic_profile_placeholder"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginBottom="20dp" />
+
+        <EditText
+            android:id="@+id/username"
+            android:hint="Username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/password"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:text="Log In"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_primary"
+            android:textColor="#E76E6E"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:text="Sign Up"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_secondary"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+</ScrollView>
