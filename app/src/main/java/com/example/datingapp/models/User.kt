@@ -14,5 +14,6 @@ data class User(
     val bio: String? = "",
     val schoolyear: String? = "",
     val major: Jurusan? = null,
-    val preference: Preferences = Preferences()
+    val preference: Preferences = Preferences(),
+
 )

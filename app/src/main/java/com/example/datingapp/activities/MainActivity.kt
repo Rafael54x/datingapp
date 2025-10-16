@@ -35,8 +35,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         when (item.itemId) {
             R.id.nav_home -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, HomeFragment()).commit()
-            R.id.nav_chat -> supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, ChatFragment()).commit()
             R.id.nav_match_list -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, MatchListFragment()).commit()
             R.id.nav_profile -> supportFragmentManager.beginTransaction()

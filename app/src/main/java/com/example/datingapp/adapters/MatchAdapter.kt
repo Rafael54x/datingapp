@@ -10,7 +10,11 @@ import com.example.datingapp.R
 import com.example.datingapp.models.User
 import de.hdodenhof.circleimageview.CircleImageView
 
-class MatchAdapter(private val matches: List<User>, private val onMatchClicked: (User) -> Unit) :
+class MatchAdapter(
+    private val matches: List<User>,
+    private val onItemClicked: (User) -> Unit,
+    private val onPhotoClicked: (User) -> Unit
+) :
     RecyclerView.Adapter<MatchAdapter.MatchViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MatchViewHolder {
@@ -35,7 +39,12 @@ class MatchAdapter(private val matches: List<User>, private val onMatchClicked: 
                 .load(user.photoUrl)
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(matchPhoto)
-            itemView.setOnClickListener { onMatchClicked(user) }
+            
+            // Set listener for the entire item (goes to chat)
+            itemView.setOnClickListener { onItemClicked(user) }
+            
+            // Set listener for the photo (goes to profile)
+            matchPhoto.setOnClickListener { onPhotoClicked(user) }
         }
     }
 }
