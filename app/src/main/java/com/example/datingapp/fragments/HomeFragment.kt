@@ -53,6 +53,18 @@ class HomeFragment : Fragment(), CardStackListener {
             cardStackView.swipe()
         }
 
+        view.findViewById<ImageButton>(R.id.inspect_button).setOnClickListener {
+            val position = layoutManager.topPosition
+            if (position < users.size) {
+                val user = users[position]
+                val profileView = ProfileViewFragment.newInstance(user.uid)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, profileView)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        }
+
         return view
     }
 

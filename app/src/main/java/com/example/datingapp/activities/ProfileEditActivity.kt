@@ -25,7 +25,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private lateinit var gender: Spinner
     private lateinit var major: Spinner
     private lateinit var fullname: EditText
-    private lateinit var birthday: EditText
+    private lateinit var age: EditText
     private lateinit var email: EditText
     private lateinit var password: EditText
     private lateinit var genderPreference: Spinner
@@ -44,13 +44,16 @@ class ProfileEditActivity : AppCompatActivity() {
         gender = findViewById(R.id.edit_gender)
         major = findViewById(R.id.edit_major)
         fullname = findViewById(R.id.edit_fullname)
-        birthday = findViewById(R.id.edit_birthday)
+        age = findViewById(R.id.edit_age)
         email = findViewById(R.id.edit_email)
         password = findViewById(R.id.edit_password)
         genderPreference = findViewById(R.id.edit_gender_preference)
         range = findViewById(R.id.edit_range)
         majorPreferences = findViewById(R.id.major_preferences)
         saveButton = findViewById(R.id.save)
+
+        // Disable the gender preference spinner so it cannot be changed
+        genderPreference.isEnabled = false
 
         // Setup Spinners
         setupSpinners()
@@ -79,7 +82,7 @@ class ProfileEditActivity : AppCompatActivity() {
             username.setText(it.username)
             schoolyear.setText(it.schoolyear)
             fullname.setText(it.name)
-            birthday.setText(it.age) // Assuming 'age' field stores the birthday string
+            age.setText(it.age) // Assuming 'age' field stores the birthday string
             email.setText(it.email)
             password.setText(it.password)
 
@@ -108,7 +111,7 @@ class ProfileEditActivity : AppCompatActivity() {
                 username = username.text.toString(),
                 schoolyear = schoolyear.text.toString(),
                 name = fullname.text.toString(),
-                age = birthday.text.toString(), // Storing birthday string in 'age' field
+                age = age.text.toString(), // Storing birthday string in 'age' field
                 email = email.text.toString(),
                 password = password.text.toString(),
                 gender = if(gender.selectedItem.toString()=="Male") Gender.M else Gender.F,

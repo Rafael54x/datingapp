@@ -90,30 +90,35 @@ class ProfileFragment : Fragment() {
 
     private fun loadUserData() {
         val user = sharedPrefManager.getUser()
-        user?.let {
+        user?.let { currentUser ->
             // Load profile image
             Glide.with(this)
-                .load(it.photoUrl)
-                .placeholder(R.drawable.ic_profile_placeholder)
-                .error(R.drawable.ic_profile_placeholder)
+                .load(currentUser.photoUrl)
+                .placeholder(R.drawable.ic_profile_placeholder) // Fallback image
+                .error(R.drawable.ic_profile_placeholder)       // Error image
                 .into(profileImage)
 
-            // Set user details
-            profileUsername.text = it.username
-            profileBio.text = it.bio ?: "No bio provided." // Handle null bio
-            profileAge.text = it.age.toString()
-            profileGender.text = it.gender?.displayName
-            profileSchoolYear.text = it.schoolyear.toString()
-            profileMajor.text = it.major?.displayName
-            profileName.text = it.name
-            profileEmail.text = it.email
-            profilePassword.text = "********" // Mask password
+            // --- Set user details ---
+            profileUsername.text = currentUser.username
+            profileBio.text = currentUser.bio ?: "No bio provided."
+            profileAge.text = currentUser.age
+            profileGender.text = currentUser.gender?.displayName
+            profileSchoolYear.text = currentUser.schoolyear
+            profileMajor.text = currentUser.major?.displayName
+            profileName.text = currentUser.name
+            profileEmail.text = currentUser.email
+            profilePassword.text = "********" // Mask password for security
 
-            // Set preferences
-            it.preference?.let { prefs ->
-                preferenceGender.text = if(it.gender == Gender.M) Gender.F.displayName else Gender.M.displayName
-                preferenceRange.text = prefs.yearPreferences?.displayName
-                preferenceMajor.text = prefs.major.joinToString(", ") { major -> major.displayName }
+            // --- Set preferences ---
+            // The 'preference' object is not nullable, so we can access it directly.
+            val prefs = currentUser.preference
+            preferenceGender.text = if(currentUser.gender == Gender.M) Gender.F.displayName else Gender.M.displayName
+            preferenceRange.text = prefs.yearPreferences?.displayName
+            
+            if (prefs.major.isNotEmpty()) {
+                preferenceMajor.text = prefs.major.joinToString(", ") { it.displayName }
+            } else {
+                preferenceMajor.text = "Not specified"
             }
         }
     }
