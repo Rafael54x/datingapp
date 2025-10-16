@@ -22,13 +22,27 @@ class MatchListFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.matches_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val matches = DummyData.getMatchesForLoggedIn()
-        recyclerView.adapter = MatchAdapter(matches) { match ->
-            val fragment = ChatFragment.newInstance(match.username!!)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
+
+        // Set up the adapter with two click listeners
+        recyclerView.adapter = MatchAdapter(
+            matches = matches,
+            onItemClicked = { user ->
+                // When a match item is clicked, navigate to ChatFragment
+                val chatFragment = ChatFragment.newInstance(user.username!!)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, chatFragment)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            onPhotoClicked = { user ->
+                // When a photo is clicked, navigate to ProfileViewFragment
+                val profileViewFragment = ProfileViewFragment.newInstance(user.uid)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, profileViewFragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        )
 
         return view
     }

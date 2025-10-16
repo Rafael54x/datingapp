@@ -22,19 +22,23 @@
 
         <ImageButton
             android:id="@+id/dislike_button"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="85dp"
+            android:layout_height="85dp"
             android:src="@drawable/ic_dislike"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+        <ImageButton
+            android:id="@+id/inspect_button"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:src="@drawable/data_loss_prevention_41dp_434343_fill0_wght400_grad0_opsz40"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginEnd="32dp"/>
-
+            android:layout_marginHorizontal="32dp"/>
         <ImageButton
             android:id="@+id/like_button"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="85dp"
+            android:layout_height="95dp"
             android:src="@drawable/ic_like"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginStart="32dp"/>
+            android:background="?attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
 
 </RelativeLayout>

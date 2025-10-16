@@ -2,42 +2,233 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="30dp"
-    android:background="#FFF">
+    android:background="@color/light_pink">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Edit Profile"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:layout_marginBottom="20dp"/>
+            android:textSize="24sp"
+            android:textStyle="bold"/>
 
-        <EditText
-            android:id="@+id/name"
-            android:hint="Full Name"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Public Profile"
+                    android:textSize="17dp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="20dp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="10dp"
+                    android:background="#E5E7EB" />
 
-        <EditText
-            android:id="@+id/age"
-            android:hint="Age"
-            android:inputType="number"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Username"/>
+                <EditText
+                    android:id="@+id/edit_username"
+                    android:hint="your name is here"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Birthday"/>
+                <EditText
+                    android:id="@+id/edit_age"
+                    android:hint="28"
+                    android:inputType="number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gender"/>
+                <Spinner
+                    android:id="@+id/edit_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/gender_options"
+                    android:layout_marginBottom="10dp"
+                    android:padding="12dp"
+                    android:background="#F0F0F0"
+                    android:popupBackground="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="School Year"/>
+                <EditText
+                    android:id="@+id/edit_schoolyear"
+                    android:hint="2023"
+                    android:inputType="number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Major"/>
+                <Spinner
+                    android:id="@+id/edit_major"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/major_options"
+                    android:layout_marginBottom="20dp"
+                    android:padding="12dp"
+                    android:background="#F0F0F0"
+                    android:popupBackground="#FFFFFF"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"/>
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Private Profile"
+                android:textSize="17dp"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="10dp"
+                android:background="#E5E7EB" />
 
-        <EditText
-            android:id="@+id/school"
-            android:hint="School"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Full Name"/>
+            <EditText
+                android:id="@+id/edit_fullname"
+                android:hint="your full name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"/>
+            <EditText
+                android:id="@+id/edit_email"
+                android:hint="youremail@example.com"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password"/>
+            <EditText
+                android:id="@+id/edit_password"
+                android:hint="123456"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"/>
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Preferences"
+                    android:textSize="17dp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="20dp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="10dp"
+                    android:background="#E5E7EB" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gender"/>
+                <Spinner
+                    android:id="@+id/edit_gender_preference"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/gender_options"
+                    android:layout_marginBottom="10dp"
+                    android:padding="12dp"
+                    android:background="#F0F0F0"
+                    android:popupBackground="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Range"/>
+                <Spinner
+                    android:id="@+id/edit_range"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/range_options"
+                    android:layout_marginBottom="10dp"
+                    android:padding="12dp"
+                    android:background="#F0F0F0"
+                    android:popupBackground="#FFFFFF"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Majors"/>
+                <ListView
+                    android:id="@+id/major_preferences"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:id="@+id/add_major"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Major"
+                    android:layout_marginBottom="20dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
         <Button
             android:id="@+id/save"
@@ -45,6 +236,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#E76E6E"
-            android:textColor="#FFF"/>
+            android:textColor="#FFF"
+            android:layout_marginBottom="100dp"/>
     </LinearLayout>
 </ScrollView>

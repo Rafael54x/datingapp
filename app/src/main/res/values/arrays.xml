@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="major_options">
+        <item>Informatika</item>
+        <item>Teknik Elektro</item>
+        <item>Teknik Fisika</item>
+        <item>Teknik Komputer</item>
+        <item>Sistem Informasi</item>
+        <item>Strategic Communication</item>
+        <item>Jurnalistik</item>
+        <item>Management</item>
+        <item>Akuntansi</item>
+        <item>Perhotelan</item>
+        <item>Desain Komunikasi Visual</item>
+        <item>Film dan Animasi</item>
+        <item>Arsitektur</item>
+    </string-array>
+    
+    <string-array name="gender_options">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
+    <string-array name="range_options">
+        <item>Senior</item>
+        <item>Junior</item>
+        <item>Seangkatan</item>
+        <item>No Preferences</item>
+    </string-array>
+
+</resources>
