@@ -7,11 +7,12 @@ enum class Jurusan(val displayNames: String) {
     TF("Teknik Fisika"),
     TK("Teknik Komputer"),
     SI("Sistem Informasi"),
-    ILKOM("Ilmu Komunikasi"),
-    BISNIS("Bisnis & Management"),
+    STRACOM("Strategic Communication"),
+    JURNAL("Jurnalistik"),
+    MANAGEMENT("Management"),
     AK("Akuntansi"),
+    HOTEL("Perhotelan"),
     DKV("Desain Komunikasi Visual"),
-    FILM("Film"),
+    FILM("Film & Animasi"),
     ARSI("Arsitektur"),
-    HOTEL("Perhotelan")
 }
