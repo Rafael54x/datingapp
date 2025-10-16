@@ -16,3 +16,9 @@ enum class Jurusan(val displayNames: String) {
     FILM("Film & Animasi"),
     ARSI("Arsitektur"),
 }
+
+enum class Range(val displayNames: String, val value: String) {
+    LESS_THAN("Junior", "<"),
+    MORE_THAN("Senior", ">"),
+    EQUAL_TO("Seangkatan", "==")
+}

@@ -1,6 +1,5 @@
 package com.example.datingapp.models
 
-import java.util.Date
 data class User(
     val uid: String = "",
     val name: String? = "",
@@ -14,5 +13,6 @@ data class User(
     val likes: MutableList<String> = mutableListOf(),
     val bio: String? = "",
     val schoolyear: String? = "",
-    val major: Jurusan? = null
+    val major: Jurusan? = null,
+    val preference: Preferences
 )
