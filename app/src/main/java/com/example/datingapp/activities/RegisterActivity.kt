@@ -40,7 +40,9 @@ class RegisterActivity : AppCompatActivity() {
                 name = name,
                 username = username,
                 email = "$username@example.com", // Create a dummy email
-                photoUrl = "https://via.placeholder.com/600x800.png?text=$name"
+                password = password,
+                likes = mutableListOf(),
+                photoUrl = "https://example.com/default_profile_pic.jpg"
             )
 
             sharedPrefManager.register(newUser)

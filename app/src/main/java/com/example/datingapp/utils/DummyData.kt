@@ -2,13 +2,15 @@ package com.example.datingapp.utils
 
 import com.example.datingapp.models.Message
 import com.example.datingapp.models.User
+import com.example.datingapp.models.Jurusan
+import com.example.datingapp.models.Gender
 object DummyData {
 
     val users = mutableListOf(
-        User("1", "Alice", "alice", "28", "alice@example.com", "Female", "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "University of Arts", "123456"),
-        User("2", "Bob", "bob", "32", "bob@example.com", "Male", "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Tech Institute", "123456"),
-        User("3", "Charlie", "charlie", "25", "charlie@example.com", "Male", "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "State University", "123456"),
-        User("4", "Diana", "diana", "30", "diana@example.com", "Female", "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Medical School", "123456")
+        User("1", "Alice", "alice", "28", "alice@example.com", Gender.F, "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "University of Arts", "123456",mutableListOf(), "Hello I'm Alice","2023", Jurusan.TI),
+        User("2", "Bob", "bob", "32", "bob@example.com", Gender.M, "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Tech Institute", "123456",mutableListOf(), "Hello I like fishing","2024", Jurusan.TI),
+        User("3", "Charlie", "charlie", "25", "charlie@example.com", Gender.M, "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "State University", "123456", mutableListOf(), "I like Anime Nice to meet you","2025", Jurusan.TI),
+        User("4", "Diana", "diana", "30", "diana@example.com", Gender.F, "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Medical School", "123456",mutableListOf(), "Looking for a friedn","2022", Jurusan.TI)
     )
 
     var loggedInUser: User? = users[0] // Alice is logged in by default for demo

@@ -1,7 +1,7 @@
 package com.example.datingapp.models
 
 
-enum class Jurusan(val displayNames: String) {
+enum class Jurusan(val displayName: String) {
     TI("Informatika"),
     TE("Teknik Elektro"),
     TF("Teknik Fisika"),
@@ -17,8 +17,14 @@ enum class Jurusan(val displayNames: String) {
     ARSI("Arsitektur"),
 }
 
-enum class Range(val displayNames: String, val value: String) {
+enum class Range(val displayName: String, val value: String) {
     LESS_THAN("Junior", "<"),
     MORE_THAN("Senior", ">"),
-    EQUAL_TO("Seangkatan", "==")
+    EQUAL_TO("Seangkatan", "=="),
+    NO("No Preference", "-")
+}
+
+enum class Gender(val displayName: String) {
+    M("Male"),
+    F("Female"),
 }

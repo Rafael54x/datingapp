@@ -18,7 +18,8 @@ class CardStackAdapter(private val users: List<User>) :
         val photo: ImageView = view.findViewById(R.id.item_image)
         val name: TextView = view.findViewById(R.id.item_name)
         val age: TextView = view.findViewById(R.id.item_age)
-        val school: TextView = view.findViewById(R.id.item_city)
+        val major: TextView = view.findViewById(R.id.item_major)
+        val schoolyear: TextView = view.findViewById(R.id.item_schoolyear)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,7 +31,9 @@ class CardStackAdapter(private val users: List<User>) :
         val user = users[position]
         holder.name.text = user.name
         holder.age.text = user.age
-        holder.school.text = user.school
+        holder.major.text = user.major?.displayName
+        holder.schoolyear.text = user.schoolyear
+
         Glide.with(holder.itemView.context)
             .load(user.photoUrl)
             .placeholder(android.R.drawable.ic_menu_gallery)

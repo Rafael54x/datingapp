@@ -6,7 +6,7 @@ data class User(
     val username: String? = "",
     val age: String? = "",
     val email: String? = "",
-    val gender: String? = "",
+    val gender: Gender? = Gender.M,
     val photoUrl: String? = "",
     val school: String? = "",
     val password: String? = "",
@@ -14,5 +14,5 @@ data class User(
     val bio: String? = "",
     val schoolyear: String? = "",
     val major: Jurusan? = null,
-    val preference: Preferences
+    val preference: Preferences = Preferences()
 )
