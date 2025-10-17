@@ -11,11 +11,19 @@ import com.bumptech.glide.Glide
 import com.example.datingapp.R
 import com.example.datingapp.models.User
 import com.example.datingapp.utils.DummyData
+import android.app.Dialog
+import android.graphics.drawable.ColorDrawable
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
+import android.view.WindowManager
+import android.view.animation.AnimationUtils
 
 private const val ARG_USER_ID = "userId"
 
 class ProfileViewFragment : Fragment() {
     private var userId: String? = null
+    private lateinit var profileImage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +42,13 @@ class ProfileViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        profileImage = view.findViewById(R.id.profile_image)
+
+        view.findViewById<View>(R.id.scan_button).setOnClickListener {
+            showProfilePopup()
+        }
+
 
         // Find the user from DummyData based on the passed ID
         val user = DummyData.users.find { it.uid == userId }
@@ -68,6 +83,57 @@ class ProfileViewFragment : Fragment() {
         profileSchoolYear.text = user.schoolyear.toString()
         profileMajor.text = user.major?.displayName
     }
+
+    private fun showProfilePopup() {
+        val dialog = Dialog(requireContext())
+        val view = LayoutInflater.from(requireContext())
+            .inflate(R.layout.popup_profile_image, null)
+
+        dialog.setContentView(view)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.parseColor("#80000000")))
+        dialog.window?.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setGravity(Gravity.CENTER)
+        dialog.setCanceledOnTouchOutside(true)
+
+        val zoomIn = AnimationUtils.loadAnimation(requireContext(), R.anim.zoom_in)
+        view.startAnimation(zoomIn)
+
+        val popupImage = view.findViewById<ImageView>(R.id.popup_profile_image_view)
+        val gifOverlay = view.findViewById<ImageView>(R.id.gif_overlay)
+        val checkIcon = view.findViewById<ImageView>(R.id.checkIcon) // ✅ Reference check icon
+
+        // Copy current loaded image
+        popupImage.setImageDrawable(profileImage.drawable)
+
+        // Load GIF
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.scanning) // your GIF file
+            .into(gifOverlay)
+
+        // After 3s, hide GIF & show check icon with animation
+        Handler(Looper.getMainLooper()).postDelayed({
+            gifOverlay.visibility = View.GONE
+
+            // ✅ Show check icon and animate
+            checkIcon.visibility = View.VISIBLE
+
+            val bounce = AnimationUtils.loadAnimation(requireContext(), R.anim.bounce)
+            val fadeOut = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_out)
+
+            checkIcon.startAnimation(bounce)
+
+            // After bounce, fade out icon
+            Handler(Looper.getMainLooper()).postDelayed({
+                checkIcon.startAnimation(fadeOut)
+                checkIcon.visibility = View.GONE
+            }, 2000) // Visible for 2 seconds
+
+        }, 3000)
+
+        dialog.show()
+    }
+
 
     companion object {
         @JvmStatic
