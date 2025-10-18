@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.bumptech.glide)
     kapt(libs.bumptech.glide.compiler) // Use 'kapt' for the compiler
     implementation(libs.de.hdodenhof.circleimageview)
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // Test dependencies
     testImplementation(libs.junit)

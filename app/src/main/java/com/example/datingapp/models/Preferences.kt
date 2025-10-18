@@ -1,7 +1,7 @@
 package com.example.datingapp.models
 
 data class Preferences (
-    val yearPreferences: Range? = Range.NO, // >, <, == (lebih tua, lebih muda, sama dengan)
+    val yearPreferences: YearPreferences? = YearPreferences.ANY,
     val gender: Gender? = null,
-    val major: MutableList<Jurusan> = mutableListOf()
+    val majorPreferences: List<Jurusan>? = null
 )

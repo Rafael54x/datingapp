@@ -2,32 +2,61 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="#E76E6E"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:background="@drawable/bg_gradient"
+    android:padding="32dp">
 
+    <!-- Logo container dengan efek shadow -->
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:gravity="center"
+        android:elevation="6dp"
+        android:layout_marginBottom="40dp">
+
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/logomap"
+            android:contentDescription="App Logo" />
+    </LinearLayout>
+
+    <!-- Judul utama -->
     <TextView
         android:text="Welcome to LocalDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="28sp"
-        android:textColor="#FFFFFF"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_marginBottom="12dp" />
 
+    <!-- Deskripsi -->
     <TextView
         android:text="Find your soulmate locally using dummy data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFF"
-        android:layout_marginBottom="30dp" />
+        android:textSize="16sp"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="#EDEDED"
+        android:gravity="center"
+        android:layout_marginBottom="40dp" />
 
+    <!-- Tombol Continue -->
     <Button
         android:id="@+id/btn_continue"
-        android:text="Continue"
-        android:layout_width="wrap_content"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:textColor="#E76E6E" />
+        android:text="Continue"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/poppins_semibold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#5A2D82"
+        android:padding="12dp"
+        android:elevation="4dp"
+        android:background="@drawable/btn_modern" />
+
 </LinearLayout>

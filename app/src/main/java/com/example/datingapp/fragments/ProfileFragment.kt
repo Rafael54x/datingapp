@@ -110,13 +110,13 @@ class ProfileFragment : Fragment() {
             profilePassword.text = "********" // Mask password for security
 
             // --- Set preferences ---
-            // The 'preference' object is not nullable, so we can access it directly.
             val prefs = currentUser.preference
             preferenceGender.text = if(currentUser.gender == Gender.M) Gender.F.displayName else Gender.M.displayName
             preferenceRange.text = prefs.yearPreferences?.displayName
             
-            if (prefs.major.isNotEmpty()) {
-                preferenceMajor.text = prefs.major.joinToString(", ") { it.displayName }
+            // Correctly access majorPreferences and display them
+            if (prefs.majorPreferences?.isNotEmpty() == true) {
+                preferenceMajor.text = prefs.majorPreferences?.joinToString(", ") { it.displayName }
             } else {
                 preferenceMajor.text = "Not specified"
             }
