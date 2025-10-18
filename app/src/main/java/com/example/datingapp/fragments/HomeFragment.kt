@@ -24,7 +24,7 @@ class HomeFragment : Fragment(), CardStackListener {
     private lateinit var cardStackView: CardStackView
     private lateinit var layoutManager: CardStackLayoutManager
     private lateinit var adapter: CardStackAdapter
-    private val users = DummyData.users
+    private var users: List<User> = listOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,8 +33,11 @@ class HomeFragment : Fragment(), CardStackListener {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         sharedPrefManager = SharedPrefManager(requireContext())
+        val loggedInUser = sharedPrefManager.getUser()
+        users = DummyData.users.filter { it.uid != loggedInUser?.uid }
+
         cardStackView = view.findViewById(R.id.card_stack_view)
-        
+
         adapter = CardStackAdapter(users)
 
         layoutManager = CardStackLayoutManager(requireContext(), this).apply {
@@ -74,9 +77,7 @@ class HomeFragment : Fragment(), CardStackListener {
             if (position < users.size) {
                 val likedUser = users[position]
                 sharedPrefManager.addLike(likedUser.uid)
-                if (sharedPrefManager.isMatch(likedUser.uid)) {
-                    showMatchDialog(likedUser)
-                }
+                showMatchDialog(likedUser)
             }
         }
     }
@@ -94,7 +95,7 @@ class HomeFragment : Fragment(), CardStackListener {
 
         dialog.findViewById<Button>(R.id.start_chatting_button).setOnClickListener {
             dialog.dismiss()
-            val chatFragment = ChatFragment.newInstance(matchedUser.uid)
+            val chatFragment = ChatFragment.newInstance(matchedUser.uid, matchedUser.name ?: "", matchedUser.photoUrl ?: "")
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, chatFragment)
                 .addToBackStack(null)

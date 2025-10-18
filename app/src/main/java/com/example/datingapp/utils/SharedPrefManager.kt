@@ -2,29 +2,28 @@ package com.example.datingapp.utils
 
 import android.content.Context
 import com.example.datingapp.models.User
+import com.google.gson.Gson
 
 class SharedPrefManager(private val context: Context) {
 
     private val pref = context.getSharedPreferences("DatingApp", Context.MODE_PRIVATE)
     private val editor = pref.edit()
+    private val gson = Gson()
 
     fun saveUser(user: User) {
-        editor.putString("user_id", user.uid)
-        editor.putString("user_name", user.name)
-        editor.putString("user_email", user.email)
-        editor.putString("user_password", user.password)
-        editor.putStringSet("user_likes", user.likes.toSet())
+        val userJson = gson.toJson(user)
+        editor.putString("user_json", userJson)
         editor.apply()
         loggedInUser = user
     }
 
     fun getUser(): User? {
-        val uid = pref.getString("user_id", null) ?: return null
-        val name = pref.getString("user_name", null)
-        val email = pref.getString("user_email", null)
-        val password = pref.getString("user_password", null)
-        val likes = pref.getStringSet("user_likes", emptySet())?.toMutableList() ?: mutableListOf()
-        return User(uid, name, email = email, password = password, likes = likes)
+        val userJson = pref.getString("user_json", null)
+        return if (userJson != null) {
+            gson.fromJson(userJson, User::class.java)
+        } else {
+            null
+        }
     }
 
     fun login(email: String, pass: String): Boolean {

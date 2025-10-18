@@ -2,141 +2,144 @@ package com.example.datingapp.activities
 
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.datingapp.R
-import com.example.datingapp.models.Jurusan
-import com.example.datingapp.models.Preferences
-import com.example.datingapp.models.User
+import com.example.datingapp.databinding.ActivityEditProfileBinding
 import com.example.datingapp.models.Gender
+import com.example.datingapp.models.Jurusan
+import com.example.datingapp.models.User
+import com.example.datingapp.models.YearPreferences
 import com.example.datingapp.utils.SharedPrefManager
+import com.google.android.material.chip.Chip
 
 class ProfileEditActivity : AppCompatActivity() {
 
     private lateinit var sharedPrefManager: SharedPrefManager
-
-    // Declare views
-    private lateinit var username: EditText
-    private lateinit var schoolyear: EditText
-    private lateinit var gender: Spinner
-    private lateinit var major: Spinner
-    private lateinit var fullname: EditText
-    private lateinit var age: EditText
-    private lateinit var email: EditText
-    private lateinit var password: EditText
-    private lateinit var genderPreference: Spinner
-    private lateinit var range: Spinner
-    private lateinit var majorPreferences: ListView
-    private lateinit var saveButton: Button
+    private lateinit var binding: ActivityEditProfileBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_profile)
+        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         sharedPrefManager = SharedPrefManager(this)
 
-        // Initialize views
-        username = findViewById(R.id.edit_username)
-        schoolyear = findViewById(R.id.edit_schoolyear)
-        gender = findViewById(R.id.edit_gender)
-        major = findViewById(R.id.edit_major)
-        fullname = findViewById(R.id.edit_fullname)
-        age = findViewById(R.id.edit_age)
-        email = findViewById(R.id.edit_email)
-        password = findViewById(R.id.edit_password)
-        genderPreference = findViewById(R.id.edit_gender_preference)
-        range = findViewById(R.id.edit_range)
-        majorPreferences = findViewById(R.id.major_preferences)
-        saveButton = findViewById(R.id.save)
-
-        // Disable the gender preference spinner so it cannot be changed
-        genderPreference.isEnabled = false
-
-        // Setup Spinners
-        setupSpinners()
-
-        // Load existing user data
+        setupDropdowns()
         loadUserData()
 
-        // Set save button listener
-        saveButton.setOnClickListener {
+        binding.save.setOnClickListener {
             saveUserData()
+        }
+
+        binding.addMajorPreferenceButton.setOnClickListener {
+            addMajorPreference()
         }
     }
 
-    private fun setupSpinners() {
-        // Example setup for Jurusan spinner. You would do this for other spinners too.
-        major.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            Jurusan.values().map { it.displayName }
-        )
+    private fun setupDropdowns() {
+        val genders = Gender.values().map { it.displayName }
+        binding.editGender.setAdapter(createArrayAdapter(genders))
+
+        val majors = Jurusan.values().map { it.displayName }
+        binding.editMajor.setAdapter(createArrayAdapter(majors))
+        binding.addMajorPreference.setAdapter(createArrayAdapter(majors))
+
+        val yearPrefs = YearPreferences.values().map { it.displayName }
+        binding.editRange.setAdapter(createArrayAdapter(yearPrefs))
+        
+        // Gender preference is auto-set and disabled
+        binding.editGenderPreference.isEnabled = false
     }
 
     private fun loadUserData() {
         val user = sharedPrefManager.getUser()
         user?.let {
-            username.setText(it.username)
-            schoolyear.setText(it.schoolyear)
-            fullname.setText(it.name)
-            age.setText(it.age) // Assuming 'age' field stores the birthday string
-            email.setText(it.email)
-            password.setText(it.password)
+            binding.editUsername.setText(it.username)
+            binding.editFullname.setText(it.name)
+            binding.editAge.setText(it.age)
+            binding.editSchoolyear.setText(it.schoolyear)
+            binding.editEmail.setText(it.email)
+            binding.editPassword.setText(it.password)
 
-            // Set spinner selections
-            setSpinnerSelection(gender, it.gender?.displayName)
-            it.major?.let { majorEnum ->
-                setSpinnerSelection(major, majorEnum.displayName)
+            // Set dropdown selections
+            binding.editGender.setText(it.gender?.displayName, false)
+            binding.editMajor.setText(it.major?.displayName, false)
+            binding.editGenderPreference.setText(if (it.gender == Gender.M) Gender.F.displayName else Gender.M.displayName, false)
+            binding.editRange.setText(it.preference.yearPreferences?.displayName, false)
+            
+            // Load major preferences as chips
+            binding.majorPreferencesChipGroup.removeAllViews()
+            it.preference.majorPreferences?.forEach { major ->
+                addMajorChip(major.displayName)
             }
-            setSpinnerSelection(genderPreference, if(it.gender == Gender.M) Gender.F.displayName else Gender.M.displayName)
-            // Assuming range preference is also a string.
-
-            setSpinnerSelection(range, it.preference.yearPreferences?.displayName)
+        }
+    }
+    
+    private fun addMajorPreference() {
+        val majorName = binding.addMajorPreference.text.toString()
+        if (majorName.isNotBlank() && Jurusan.values().any { it.displayName == majorName }) {
+            // Prevent adding duplicates
+            val isAlreadyAdded = (0 until binding.majorPreferencesChipGroup.childCount).any {
+                (binding.majorPreferencesChipGroup.getChildAt(it) as Chip).text.toString() == majorName
+            }
+            if (!isAlreadyAdded) {
+                addMajorChip(majorName)
+                binding.addMajorPreference.text.clear()
+            } else {
+                Toast.makeText(this, "Major already added.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Please select a valid major.", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun saveUserData() {
         val currentUser = sharedPrefManager.getUser()
         if (currentUser != null) {
+            val selectedMajors = mutableListOf<Jurusan>()
+            for (i in 0 until binding.majorPreferencesChipGroup.childCount) {
+                val chip = binding.majorPreferencesChipGroup.getChildAt(i) as Chip
+                Jurusan.values().find { it.displayName == chip.text.toString() }?.let {
+                    selectedMajors.add(it)
+                }
+            }
+            
             val updatedPreferences = currentUser.preference.copy(
-                gender = if(genderPreference.selectedItem.toString()=="Male") Gender.M else Gender.F,
-                yearPreferences = currentUser.preference.yearPreferences,
-                // Logic for yearPreferences and major preferences would be added here
+                gender = if (binding.editGenderPreference.text.toString() == "Female") Gender.F else Gender.M,
+                yearPreferences = YearPreferences.values().find { it.displayName == binding.editRange.text.toString() },
+                majorPreferences = selectedMajors
             )
 
             val updatedUser = currentUser.copy(
-                username = username.text.toString(),
-                schoolyear = schoolyear.text.toString(),
-                name = fullname.text.toString(),
-                age = age.text.toString(), // Storing birthday string in 'age' field
-                email = email.text.toString(),
-                password = password.text.toString(),
-                gender = if(gender.selectedItem.toString()=="Male") Gender.M else Gender.F,
-                photoUrl = currentUser.photoUrl.toString(),
-                major = Jurusan.values().find { it.displayName == major.selectedItem.toString() },
+                username = binding.editUsername.text.toString(),
+                name = binding.editFullname.text.toString(),
+                age = binding.editAge.text.toString(),
+                schoolyear = binding.editSchoolyear.text.toString(),
+                email = binding.editEmail.text.toString(),
+                password = binding.editPassword.text.toString(),
+                gender = Gender.values().find { it.displayName == binding.editGender.text.toString() },
+                major = Jurusan.values().find { it.displayName == binding.editMajor.text.toString() },
                 preference = updatedPreferences
             )
 
             sharedPrefManager.saveUser(updatedUser)
             Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
-            finish() // Go back to the previous activity
+            finish()
         } else {
             Toast.makeText(this, "Error: User not found.", Toast.LENGTH_SHORT).show()
         }
     }
-
-    private fun setSpinnerSelection(spinner: Spinner, value: String?) {
-        value?.let {
-            val adapter = spinner.adapter
-            for (i in 0 until adapter.count) {
-                if (adapter.getItem(i).toString() == value) {
-                    spinner.setSelection(i)
-                    break
-                }
-            }
+    
+    private fun addMajorChip(majorName: String) {
+        val chip = Chip(this).apply {
+            text = majorName
+            isCloseIconVisible = true
+            setOnCloseIconClickListener { binding.majorPreferencesChipGroup.removeView(this) }
         }
+        binding.majorPreferencesChipGroup.addView(chip)
+    }
+
+    private fun createArrayAdapter(items: List<String>): ArrayAdapter<String> {
+        return ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
     }
 }
