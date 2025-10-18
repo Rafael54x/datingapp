@@ -1,4 +1,4 @@
-# 💕 DatingAppUMN
+# 💕 UMNDatingApp
 
 <div align="center">
   <img src="app/src/main/res/drawable/logomap.png" alt="DatingAppUMN Logo" width="200"/>
@@ -15,7 +15,7 @@
 
 ## 📱 About The Project
 
-DatingAppUMN is a modern, intuitive dating application specifically designed for Universitas Multimedia Nusantara (UMN) students. The app provides a seamless platform for students to connect, match, and build meaningful relationships within the university community.
+UMNDatingApp is a modern, intuitive dating application specifically designed for Universitas Multimedia Nusantara (UMN) students. The app provides a seamless platform for students to connect, match, and build meaningful relationships within the university community.
 
 ### ✨ Key Features
 
