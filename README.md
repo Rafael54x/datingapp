@@ -258,16 +258,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Contact & Support
-
-For questions, suggestions, or support, please reach out to our development team:
-
-- **Project Repository:** [GitHub Repository](https://github.com/yourusername/datingapp-umn)
-- **Issues & Bug Reports:** [GitHub Issues](https://github.com/yourusername/datingapp-umn/issues)
-- **Email:** datingapp.umn@gmail.com
-
----
-
 <div align="center">
   <p><strong>Made with ❤️ by UMN Students for UMN Students</strong></p>
   <p><em>Connecting Hearts, Building Futures</em></p>
@@ -285,5 +275,5 @@ For questions, suggestions, or support, please reach out to our development team
 ---
 
 <div align="center">
-  <sub>© 2024 DatingAppUMN Team. All rights reserved.</sub>
+  <sub>© 2025 DatingAppUMN Team. All rights reserved.</sub>
 </div>
