@@ -55,6 +55,7 @@ class ProfileEditActivity : AppCompatActivity() {
         val user = sharedPrefManager.getUser()
         user?.let {
             binding.editUsername.setText(it.username)
+            binding.editBio.setText(it.bio)
             binding.editFullname.setText(it.name)
             binding.editAge.setText(it.age)
             binding.editSchoolyear.setText(it.schoolyear)
@@ -112,6 +113,7 @@ class ProfileEditActivity : AppCompatActivity() {
 
             val updatedUser = currentUser.copy(
                 username = binding.editUsername.text.toString(),
+                bio = binding.editBio.text.toString(),
                 name = binding.editFullname.text.toString(),
                 age = binding.editAge.text.toString(),
                 schoolyear = binding.editSchoolyear.text.toString(),

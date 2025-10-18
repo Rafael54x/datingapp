@@ -17,19 +17,18 @@
             android:id="@+id/profile_image_layout"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintDimensionRatio="3:4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="350dp">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/profile_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_profile_placeholder"
-                app:civ_border_color="@color/pink"
-                app:civ_border_width="2dp" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_profile_placeholder" />
 
             <ImageButton
                 android:id="@+id/scan_button"

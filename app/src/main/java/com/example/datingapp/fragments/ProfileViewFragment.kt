@@ -17,6 +17,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.view.WindowManager
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 
 private const val ARG_USER_ID = "userId"
@@ -100,7 +101,8 @@ class ProfileViewFragment : Fragment() {
 
         val popupImage = view.findViewById<ImageView>(R.id.popup_profile_image_view)
         val gifOverlay = view.findViewById<ImageView>(R.id.gif_overlay)
-        val checkIcon = view.findViewById<ImageView>(R.id.checkIcon) // ✅ Reference check icon
+        val checkIcon = view.findViewById<ImageView>(R.id.checkIcon)
+        val verifiedText = view.findViewById<TextView>(R.id.verified_text)
 
         // Copy current loaded image
         popupImage.setImageDrawable(profileImage.drawable)
@@ -115,18 +117,34 @@ class ProfileViewFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             gifOverlay.visibility = View.GONE
 
-            // ✅ Show check icon and animate
+            // Show check icon and animate
             checkIcon.visibility = View.VISIBLE
 
             val bounce = AnimationUtils.loadAnimation(requireContext(), R.anim.bounce)
             val fadeOut = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_out)
+
+            fadeOut.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                }
+
+                override fun onAnimationEnd(p0: Animation?) {
+                    checkIcon.visibility = View.GONE
+                    verifiedText.visibility = View.VISIBLE
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                       dialog.dismiss()
+                    }, 2000)
+                }
+
+                override fun onAnimationRepeat(p0: Animation?) {
+                }
+            })
 
             checkIcon.startAnimation(bounce)
 
             // After bounce, fade out icon
             Handler(Looper.getMainLooper()).postDelayed({
                 checkIcon.startAnimation(fadeOut)
-                checkIcon.visibility = View.GONE
             }, 2000) // Visible for 2 seconds
 
         }, 3000)
