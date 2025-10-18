@@ -162,28 +162,24 @@ app/src/main/java/com/example/datingapp/
 <table align="center">
   <tr>
     <td align="center">
-      <img src="https://github.com/felicia.png" width="100px;" alt="Felicia"/><br />
+      <img src="https://github.com/Felicia625.png" width="100px;" alt="Felicia"/><br />
       <sub><b>Felicia Sabatini Gunawan</b></sub><br />
       <sub>00000093843</sub><br />
-      <sub>🎨 UI/UX Designer & Frontend Developer</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/frendhy.png" width="100px;" alt="Frendhy"/><br />
+      <img src="https://github.com/Frendhy.png" width="100px;" alt="Frendhy"/><br />
       <sub><b>Frendhy Zhuang</b></sub><br />
       <sub>00000092876</sub><br />
-      <sub>📱 Android Developer & Architecture</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/rafael.png" width="100px;" alt="Rafael"/><br />
+      <img src="https://github.com/Rafael54x.png" width="100px;" alt="Rafael"/><br />
       <sub><b>Rafael Natanael</b></sub><br />
       <sub>00000093739</sub><br />
-      <sub>⚙️ Backend Integration & Logic</sub>
     </td>
     <td align="center">
-      <img src="https://github.com/sharon.png" width="100px;" alt="Sharon"/><br />
+      <img src="https://github.com/seronnnn.png" width="100px;" alt="Sharon"/><br />
       <sub><b>Sharon Tionardi</b></sub><br />
       <sub>00000095084</sub><br />
-      <sub>🔧 Testing & Quality Assurance</sub>
     </td>
   </tr>
 </table>
