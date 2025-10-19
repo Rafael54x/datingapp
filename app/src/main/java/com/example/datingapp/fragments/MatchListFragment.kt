@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.datingapp.R
 import com.example.datingapp.adapters.MatchAdapter
 import com.example.datingapp.utils.DummyData
+import com.example.datingapp.utils.SharedPrefManager
 
 class MatchListFragment : Fragment() {
 
@@ -19,16 +20,33 @@ class MatchListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_match_list, container, false)
 
+        val sharedPrefManager = SharedPrefManager(requireContext())
+        val loggedInUser = sharedPrefManager.getUser()
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.matches_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val matches = DummyData.getMatchesForLoggedIn()
-        recyclerView.adapter = MatchAdapter(matches) { match ->
-            val fragment = ChatFragment.newInstance(match.username!!)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
+        val users = DummyData.users.filter { it.uid != loggedInUser?.uid }
+
+        // Set up the adapter with two click listeners
+        recyclerView.adapter = MatchAdapter(
+            matches = users,
+            onItemClicked = { user ->
+                // When a match item is clicked, navigate to ChatFragment
+                val chatFragment = ChatFragment.newInstance(user.uid, user.name ?: "", user.photoUrl ?: "")
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, chatFragment)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            onPhotoClicked = { user ->
+                // When a photo is clicked, navigate to ProfileViewFragment
+                val profileViewFragment = ProfileViewFragment.newInstance(user.uid)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, profileViewFragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        )
 
         return view
     }
