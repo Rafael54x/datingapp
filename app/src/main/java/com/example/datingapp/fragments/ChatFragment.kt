@@ -21,29 +21,36 @@ import com.example.datingapp.utils.DummyChatManager
 
 class ChatFragment : Fragment() {
 
+    // UI Components
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatAdapter: ChatAdapter
     private lateinit var messages: MutableList<Message>
     private lateinit var inputEditText: EditText
     private lateinit var sendButton: Button
 
+    // Data partner chat
     private lateinit var partnerId: String
     private lateinit var partnerName: String
     private lateinit var partnerPhotoUrl: String
 
+    // Header components
     private lateinit var profileImage: ImageView
     private lateinit var profileName: TextView
 
-    // Let's assume the logged-in user has this ID
+    // ID user yang sedang login (hardcoded untuk demo)
     private val loggedInUserId = "user1"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Ambil data partner dari arguments
         arguments?.let {
             partnerId = it.getString(ARG_PARTNER_ID) ?: ""
             partnerName = it.getString(ARG_PARTNER_NAME) ?: ""
             partnerPhotoUrl = it.getString(ARG_PARTNER_PHOTO_URL) ?: ""
         }
+
+        // Load riwayat chat dengan partner dari DummyChatManager
         messages = DummyChatManager.getMessages(partnerId)
     }
 
@@ -51,55 +58,88 @@ class ChatFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate layout
         val view = inflater.inflate(R.layout.fragment_chat, container, false)
+
+        // Inisialisasi views
         recyclerView = view.findViewById(R.id.recycler_chat)
         inputEditText = view.findViewById(R.id.input)
         sendButton = view.findViewById(R.id.send)
         profileImage = view.findViewById(R.id.profile_image)
         profileName = view.findViewById(R.id.profile_name)
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up the header
+        // Setup header chat - tampilkan nama dan foto partner
         profileName.text = partnerName
         Glide.with(this)
             .load(partnerPhotoUrl)
             .placeholder(R.drawable.ic_profile)
             .into(profileImage)
 
+        // Setup RecyclerView untuk menampilkan pesan
         chatAdapter = ChatAdapter(requireContext(), messages, loggedInUserId)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = chatAdapter
+
+        // Scroll ke pesan terakhir
         recyclerView.scrollToPosition(messages.size - 1)
 
+        // Setup tombol send
         sendButton.setOnClickListener {
+            // Ambil text dari input
             val messageText = inputEditText.text.toString()
+
+            // Validasi: pastikan pesan tidak kosong
             if (messageText.isNotEmpty()) {
-                val newMessage = Message(messageText, loggedInUserId, System.currentTimeMillis())
+                // Buat object Message baru
+                val newMessage = Message(
+                    messageText,
+                    loggedInUserId,
+                    System.currentTimeMillis()
+                )
+
+                // Tambahkan pesan ke list
                 messages.add(newMessage)
+
+                // Notify adapter bahwa ada item baru
                 chatAdapter.notifyItemInserted(messages.size - 1)
+
+                // Scroll ke pesan terbaru
                 recyclerView.scrollToPosition(messages.size - 1)
+
+                // Kosongkan input field
                 inputEditText.text.clear()
 
-                // Simulate a reply after a short delay
+                // Simulasi balasan otomatis dari partner setelah 1 detik
                 Handler(Looper.getMainLooper()).postDelayed({
+                    // Generate balasan random
                     val replyMessage = DummyChatManager.generateReply(partnerId)
+
+                    // Tambahkan balasan ke list
                     messages.add(replyMessage)
+
+                    // Notify adapter
                     chatAdapter.notifyItemInserted(messages.size - 1)
+
+                    // Scroll ke balasan terbaru
                     recyclerView.scrollToPosition(messages.size - 1)
-                }, 1000)
+                }, 1000) // Delay 1 detik
             }
         }
     }
 
     companion object {
+        // Keys untuk arguments
         private const val ARG_PARTNER_ID = "partnerId"
         private const val ARG_PARTNER_NAME = "partnerName"
         private const val ARG_PARTNER_PHOTO_URL = "partnerPhotoUrl"
 
+        // Factory method untuk membuat instance ChatFragment dengan arguments
         @JvmStatic
         fun newInstance(partnerId: String, partnerName: String, partnerPhotoUrl: String) =
             ChatFragment().apply {

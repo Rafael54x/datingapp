@@ -4,14 +4,98 @@ import com.example.datingapp.models.Message
 import com.example.datingapp.models.User
 import com.example.datingapp.models.Jurusan
 import com.example.datingapp.models.Gender
+
+// Object singleton untuk menyimpan data dummy aplikasi
 object DummyData {
 
+    // List semua user dummy dalam aplikasi
     val users = mutableListOf(
-        User("1", "Alice", "alice", "28", "alice@student.umn.ac.id", Gender.F, "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "University of Arts", "123456",mutableListOf(), "Hello I'm Alice","2023", Jurusan.TI),
-        User("2", "Bob", "bob", "32", "bob@student.umn.ac.id", Gender.M, "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Tech Institute", "123456",mutableListOf(), "Hello I like fishing","2024", Jurusan.TI),
-        User("3", "Charlie", "charlie", "25", "charlie@student.umn.ac.id", Gender.M, "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "State University", "123456", mutableListOf(), "I like Anime Nice to meet you","2025", Jurusan.TI),
-        User("4", "Diana", "diana", "30", "diana@student.umn.ac.id", Gender.F, "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Medical School", "123456",mutableListOf(), "Looking for a friedn","2022", Jurusan.TI),
-        User("5", "Eva", "eva", "29", "eva@student.umn.ac.id", Gender.F, "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Design School", "123456", mutableListOf(), "Creative soul.", "2021", Jurusan.TI),
+        // User 1: Alice
+        User(
+            "1",
+            "Alice",
+            "alice",
+            "28",
+            "alice@student.umn.ac.id",
+            Gender.F,
+            "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "University of Arts",
+            "123456",
+            mutableListOf(), // List user yang di-like (kosong)
+            "Hello I'm Alice",
+            "2023",
+            Jurusan.TI
+        ),
+
+        // User 2: Bob
+        User(
+            "2",
+            "Bob",
+            "bob",
+            "32",
+            "bob@student.umn.ac.id",
+            Gender.M,
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "Tech Institute",
+            "123456",
+            mutableListOf(),
+            "Hello I like fishing",
+            "2024",
+            Jurusan.TI
+        ),
+
+        // User 3: Charlie
+        User(
+            "3",
+            "Charlie",
+            "charlie",
+            "25",
+            "charlie@student.umn.ac.id",
+            Gender.M,
+            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "State University",
+            "123456",
+            mutableListOf(),
+            "I like Anime Nice to meet you",
+            "2025",
+            Jurusan.TI
+        ),
+
+        // User 4: Diana
+        User(
+            "4",
+            "Diana",
+            "diana",
+            "30",
+            "diana@student.umn.ac.id",
+            Gender.F,
+            "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "Medical School",
+            "123456",
+            mutableListOf(),
+            "Looking for a friend",
+            "2022",
+            Jurusan.TI
+        ),
+
+        // User 5: Eva
+        User(
+            "5",
+            "Eva",
+            "eva",
+            "29",
+            "eva@student.umn.ac.id",
+            Gender.F,
+            "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "Design School",
+            "123456",
+            mutableListOf(),
+            "Creative soul.",
+            "2021",
+            Jurusan.TI
+        ),
+
+        // ... User lainnya dengan struktur yang sama
         User("6", "Frank", "frank", "31", "frank@student.umn.ac.id", Gender.M, "https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Business School", "123456", mutableListOf(), "Entrepreneur in the making.", "2020", Jurusan.TI),
         User("7", "Grace", "grace", "26", "grace@student.umn.ac.id", Gender.F, "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Law School", "123456", mutableListOf(), "Seeking justice and a good coffee.", "2022", Jurusan.TI),
         User("8", "Harry", "harry", "33", "harry@student.umn.ac.id", Gender.M, "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Engineering College", "123456", mutableListOf(), "Building things.", "2019", Jurusan.TI),
@@ -21,13 +105,20 @@ object DummyData {
         User("12", "Leo", "leo", "30", "leo@student.umn.ac.id", Gender.M, "https://images.unsplash.com/photo-1581382575275-972c7c3554bc?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "Film School", "123456", mutableListOf(), "Director in the making.", "2020", Jurusan.TI)
     )
 
-    var loggedInUser: User? = users[0] // Alice is logged in by default for demo
+    // User yang sedang login (default: Alice untuk demo)
+    var loggedInUser: User? = users[0]
 
+    // List pasangan yang sudah match
+    // Berisi pair username yang saling match
     val matches = mutableListOf<Pair<String, String>>().apply {
-        add("alice" to "bob")
+        add("alice" to "bob") // Alice dan Bob sudah match
     }
 
+    // Map untuk menyimpan riwayat chat antar user
+    // Key: "username1-username2" (diurutkan alfabetis)
+    // Value: List of Message
     private val chats = mutableMapOf<String, MutableList<Message>>().apply {
+        // Inisialisasi chat dummy antara Alice dan Bob
         val chatKey = getChatKey("alice", "bob")
         put(chatKey, mutableListOf(
             Message("Hi Bob!", "alice", System.currentTimeMillis()),
@@ -35,38 +126,59 @@ object DummyData {
         ))
     }
 
+    // Ambil list user yang belum match dengan user yang login
     fun getMatchesForLoggedIn(): List<User> {
         val loggedInUsername = loggedInUser?.username ?: return emptyList()
+
+        // Filter: tampilkan user yang belum ada di list matches
         return users.filter { user ->
             !matches.any { (u1, u2) ->
-                (u1 == loggedInUsername && u2 == user.username) || (u2 == loggedInUsername && u1 == user.username)
+                (u1 == loggedInUsername && u2 == user.username) ||
+                        (u2 == loggedInUsername && u1 == user.username)
             }
         }
     }
 
+    // Tambahkan like ke user lain
     fun like(likedUser: User) {
         val loggedInUsername = loggedInUser?.username ?: return
         val likedUsername = likedUser.username ?: return
 
-        // Add a one-way like. If the other user also liked, it becomes a match.
+        // Tambahkan ke list matches jika belum ada
+        // Ini adalah like satu arah. Jika user lain juga like, baru jadi match
         if (!matches.contains(loggedInUsername to likedUsername)) {
             matches.add(loggedInUsername to likedUsername)
         }
     }
 
+    // Ambil riwayat chat dengan username tertentu
     fun getChatWith(username: String): List<Message> {
         val loggedInUsername = loggedInUser?.username ?: return emptyList()
+
+        // Generate key untuk chat
         val chatKey = getChatKey(loggedInUsername, username)
+
+        // Return chat history, atau list kosong jika belum ada
         return chats.getOrPut(chatKey) { mutableListOf() }
     }
 
+    // Kirim pesan ke user lain
     fun sendMessage(toUsername: String, message: Message) {
         val loggedInUsername = loggedInUser?.username ?: return
+
+        // Generate key untuk chat
         val chatKey = getChatKey(loggedInUsername, toUsername)
+
+        // Tambahkan pesan ke history
         chats.getOrPut(chatKey) { mutableListOf() }.add(message)
     }
 
+    // Generate key unik untuk chat antara dua user
+    // Key selalu dalam format yang konsisten (alfabetis) agar chat bisa ditemukan
+    // dari kedua sisi
     private fun getChatKey(user1: String, user2: String): String {
+        // Sort alfabetis untuk konsistensi
+        // Contoh: "alice-bob" sama dengan "bob-alice"
         return if (user1 < user2) "$user1-$user2" else "$user2-$user1"
     }
 }
