@@ -18,9 +18,10 @@ import com.example.datingapp.models.Gender
 
 class ProfileFragment : Fragment() {
 
+    // SharedPrefManager untuk mengambil data user
     private lateinit var sharedPrefManager: SharedPrefManager
 
-    // View references
+    // Referensi ke semua view yang akan diisi dengan data
     private lateinit var profileImage: ImageView
     private lateinit var profileUsername: TextView
     private lateinit var profileBio: TextView
@@ -39,27 +40,30 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        // Inflate layout untuk fragment
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Inisialisasi SharedPrefManager
         sharedPrefManager = SharedPrefManager(requireContext())
 
-        // Initialize views
+        // Inisialisasi semua views
         initializeViews(view)
 
-        // Load user data initially
+        // Load data user pertama kali
         loadUserData()
 
-        // Set up Edit Profile button
+        // Setup tombol Edit Profile
         view.findViewById<Button>(R.id.edit_profile_button).setOnClickListener {
+            // Pindah ke ProfileEditActivity
             val intent = Intent(activity, ProfileEditActivity::class.java)
             startActivity(intent)
         }
 
-        // Set up Logout button
+        // Setup tombol Logout
         view.findViewById<Button>(R.id.btn_logout).setOnClickListener {
             logoutUser()
         }
@@ -67,11 +71,12 @@ class ProfileFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Reload data every time the fragment is resumed,
-        // to reflect any changes from the edit screen.
+        // Reload data setiap kali fragment di-resume
+        // Ini memastikan perubahan dari edit profile langsung terlihat
         loadUserData()
     }
 
+    // Inisialisasi semua view references
     private fun initializeViews(view: View) {
         profileImage = view.findViewById(R.id.profile_image)
         profileUsername = view.findViewById(R.id.profile_username)
@@ -88,51 +93,72 @@ class ProfileFragment : Fragment() {
         preferenceMajor = view.findViewById(R.id.preference_major)
     }
 
+    // Load dan tampilkan data user dari SharedPreferences
     private fun loadUserData() {
+        // Ambil data user yang sedang login
         val user = sharedPrefManager.getUser()
+
         user?.let { currentUser ->
-            // Load profile image
+            // Load foto profile menggunakan Glide
             Glide.with(this)
                 .load(currentUser.photoUrl)
-                .placeholder(R.drawable.ic_profile_placeholder) // Fallback image
-                .error(R.drawable.ic_profile_placeholder)       // Error image
+                .placeholder(R.drawable.ic_profile_placeholder) // Gambar placeholder
+                .error(R.drawable.ic_profile_placeholder)       // Gambar saat error
                 .into(profileImage)
 
-            // --- Set user details ---
+            // --- Set data profile publik ---
             profileUsername.text = currentUser.username
             profileBio.text = currentUser.bio ?: "No bio provided."
             profileAge.text = currentUser.age
             profileGender.text = currentUser.gender?.displayName
             profileSchoolYear.text = currentUser.schoolyear
             profileMajor.text = currentUser.major?.displayName
+
+            // --- Set data profile private ---
             profileName.text = currentUser.name
             profileEmail.text = currentUser.email
-            profilePassword.text = "********" // Mask password for security
+            profilePassword.text = "********" // Mask password untuk keamanan
 
             // --- Set preferences ---
             val prefs = currentUser.preference
-            preferenceGender.text = if(currentUser.gender == Gender.M) Gender.F.displayName else Gender.M.displayName
+
+            // Gender preference: kebalikan dari gender user
+            // Jika user Male, preferensinya Female, begitu sebaliknya
+            preferenceGender.text = if(currentUser.gender == Gender.M)
+                Gender.F.displayName
+            else
+                Gender.M.displayName
+
+            // Year preference (angkatan)
             preferenceRange.text = prefs.yearPreferences?.displayName
-            
-            // Correctly access majorPreferences and display them
+
+            // Major preferences (bisa lebih dari satu)
             if (prefs.majorPreferences?.isNotEmpty() == true) {
-                preferenceMajor.text = prefs.majorPreferences?.joinToString(", ") { it.displayName }
+                // Join semua major preferences dengan koma
+                preferenceMajor.text = prefs.majorPreferences?.joinToString(", ") {
+                    it.displayName
+                }
             } else {
                 preferenceMajor.text = "Not specified"
             }
         }
     }
 
+    // Proses logout user
     private fun logoutUser() {
-        // Clear shared preferences
+        // Hapus semua data dari SharedPreferences
         sharedPrefManager.clear()
 
-        // Navigate to LoginActivity
+        // Buat intent ke LoginActivity
         val intent = Intent(activity, LoginActivity::class.java).apply {
-            // Clear the activity stack to prevent user from going back to the app
+            // Clear activity stack agar user tidak bisa back ke app setelah logout
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
+
+        // Pindah ke LoginActivity
         startActivity(intent)
+
+        // Tutup activity saat ini
         activity?.finish()
     }
 }
