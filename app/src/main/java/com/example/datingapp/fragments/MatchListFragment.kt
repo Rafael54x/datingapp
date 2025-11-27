@@ -18,29 +18,48 @@ class MatchListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate layout untuk fragment
         val view = inflater.inflate(R.layout.fragment_match_list, container, false)
 
+        // Inisialisasi SharedPrefManager
         val sharedPrefManager = SharedPrefManager(requireContext())
+
+        // Ambil data user yang sedang login
         val loggedInUser = sharedPrefManager.getUser()
 
+        // Setup RecyclerView
         val recyclerView = view.findViewById<RecyclerView>(R.id.matches_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Filter users: tampilkan semua user kecuali diri sendiri
         val users = DummyData.users.filter { it.uid != loggedInUser?.uid }
 
-        // Set up the adapter with two click listeners
+        // Setup adapter dengan dua callback:
+        // 1. onItemClicked - saat item (seluruh row) diklik -> buka chat
+        // 2. onPhotoClicked - saat foto diklik -> lihat profile
         recyclerView.adapter = MatchAdapter(
             matches = users,
+
+            // Callback ketika item diklik - navigasi ke ChatFragment
             onItemClicked = { user ->
-                // When a match item is clicked, navigate to ChatFragment
-                val chatFragment = ChatFragment.newInstance(user.uid, user.name ?: "", user.photoUrl ?: "")
+                val chatFragment = ChatFragment.newInstance(
+                    user.uid,
+                    user.name ?: "",
+                    user.photoUrl ?: ""
+                )
+
+                // Ganti fragment dan tambahkan ke back stack
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, chatFragment)
                     .addToBackStack(null)
                     .commit()
             },
+
+            // Callback ketika foto diklik - navigasi ke ProfileViewFragment
             onPhotoClicked = { user ->
-                // When a photo is clicked, navigate to ProfileViewFragment
                 val profileViewFragment = ProfileViewFragment.newInstance(user.uid)
+
+                // Ganti fragment dan tambahkan ke back stack
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, profileViewFragment)
                     .addToBackStack(null)
