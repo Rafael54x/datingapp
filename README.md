@@ -19,13 +19,15 @@ UMNDatingApp is a modern, intuitive dating application specifically designed for
 
 ### ✨ Key Features
 
-- 🎯 **Smart Matching System** - Advanced algorithm to find compatible matches
-- 💬 **Real-time Messaging** - Instant chat functionality with match partners
-- 👤 **Profile Management** - Comprehensive profile creation and editing
-- 🎨 **Modern UI/UX** - Clean, intuitive interface with smooth animations
-- 🔐 **Secure Authentication** - Safe login and registration system
-- 📊 **Match Analytics** - Track your connections and interactions
-- 🎓 **University Integration** - Tailored specifically for UMN students
+- 🎯 **Smart Matching System** - Swipe-based matching with like/pass functionality
+- 💬 **Real-time Messaging** - Firebase-powered instant chat with matched users
+- 👤 **Profile Management** - Comprehensive profile with photo verification badge
+- 🔍 **Search & Filter** - Real-time search in match list by partner name
+- 🔐 **Secure Authentication** - Firebase Auth with password change functionality
+- 🚫 **Block System** - Block unwanted users and prevent chat access
+- ❤️ **Likes Management** - View who liked you and manage your likes
+- 🎨 **Modern UI/UX** - Material Design 3 with smooth animations
+- 🎓 **University Integration** - Major and year-based matching preferences
 
 ---
 
@@ -37,6 +39,11 @@ UMNDatingApp is a modern, intuitive dating application specifically designed for
 - **Architecture:** MVVM Pattern
 - **Navigation:** Fragment-based navigation with BottomNavigationView
 
+### **Backend**
+- **Authentication:** Firebase Authentication
+- **Database:** Cloud Firestore
+- **Real-time Sync:** Firestore Snapshots
+
 ### **Key Libraries & Dependencies**
 ```kotlin
 // Core Android Libraries
@@ -44,10 +51,18 @@ androidx.core:core-ktx
 androidx.appcompat:appcompat
 com.google.android.material:material
 
+// Firebase
+firebase-bom:33.2.0
+firebase-auth-ktx
+firebase-firestore-ktx
+firebase-analytics
+
 // UI Components
 androidx.recyclerview:recyclerview
 com.yuyakaido.android:cardstackview  // Card swipe functionality
 de.hdodenhof:circleimageview         // Circular profile images
+com.facebook.shimmer:shimmer         // Loading animations
+androidx.swiperefreshlayout          // Pull to refresh
 
 // Image Loading
 com.github.bumptech.glide:glide
@@ -55,6 +70,7 @@ com.github.bumptech.glide:compiler
 
 // Data Handling
 com.google.code.gson:gson            // JSON parsing
+kotlinx-coroutines-play-services     // Firebase coroutines support
 ```
 
 ### **Project Structure**
@@ -65,15 +81,20 @@ app/src/main/java/com/example/datingapp/
 │   ├── MainActivity.kt
 │   ├── OnboardingActivity.kt
 │   ├── ProfileEditActivity.kt
-│   └── RegisterActivity.kt
+│   ├── RegisterActivity.kt
+│   └── SplashActivity.kt
 ├── adapters/           # RecyclerView adapters
 │   ├── CardStackAdapter.kt
 │   ├── ChatAdapter.kt
-│   └── MatchAdapter.kt
+│   ├── LikesAdapter.kt
+│   ├── MatchAdapter.kt
+│   └── MyLikesAdapter.kt
 ├── fragments/          # Fragment classes
 │   ├── ChatFragment.kt
 │   ├── HomeFragment.kt
+│   ├── LikesFragment.kt
 │   ├── MatchListFragment.kt
+│   ├── MyLikesFragment.kt
 │   ├── ProfileFragment.kt
 │   └── ProfileViewFragment.kt
 ├── models/            # Data models
@@ -95,9 +116,10 @@ app/src/main/java/com/example/datingapp/
 
 ### Prerequisites
 - Android Studio Arctic Fox or later
-- Android SDK API 24+
+- Android SDK API 24+ (Target SDK 36)
 - Kotlin 1.8+
-- Gradle 8.0+
+- Gradle 8.13+
+- Firebase Project with Authentication & Firestore enabled
 
 ### Installation
 
@@ -116,7 +138,14 @@ app/src/main/java/com/example/datingapp/
    - Wait for Gradle sync to complete
    - Resolve any dependency issues if prompted
 
-4. **Run the Application**
+4. **Setup Firebase**
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Add Android app with package name: `com.example.datingapp`
+   - Download `google-services.json` and place in `app/` folder
+   - Enable Email/Password authentication
+   - Create Firestore database in test mode
+
+5. **Run the Application**
    - Connect an Android device or start an emulator
    - Click the "Run" button or press `Shift + F10`
 
@@ -137,23 +166,48 @@ app/src/main/java/com/example/datingapp/
 
 ### 🏠 Home Screen
 - **Card Stack Interface:** Swipe through potential matches with smooth animations
-- **Like/Dislike Actions:** Intuitive gesture-based matching system
-- **Real-time Updates:** Dynamic content loading and updates
+- **Like/Pass Actions:** Swipe right to like, left to pass
+- **Smart Filtering:** Matches based on gender, year, and major preferences
+- **Block Prevention:** Blocked users won't appear in your feed
+- **Real-time Sync:** Instant updates from Firestore
 
 ### 💬 Chat System
-- **Instant Messaging:** Real-time chat with matched users
-- **Message History:** Persistent conversation storage
-- **User-friendly Interface:** Clean chat bubbles with timestamp support
+- **Real-time Messaging:** Firebase-powered instant chat
+- **Message Management:** Long-press to delete your messages
+- **Block Detection:** Automatic chat prevention for blocked users
+- **Profile Access:** Tap partner name/photo to view full profile
+- **Message History:** Persistent conversation storage in Firestore
 
 ### 👤 Profile Management
-- **Comprehensive Profiles:** Detailed user information including major, year, and preferences
-- **Photo Management:** Multiple profile picture support
-- **Preference Settings:** Customizable matching criteria
+- **Profile Editing:** Update bio, age, school year, major, and preferences
+- **Password Management:** Change password with old password verification
+- **Verified Badge:** Blue checkmark for verified profile photos
+- **Account Deletion:** Complete account removal with data cleanup
+- **Preference Settings:** Gender, year range, and major preferences
+
+### ❤️ Likes System
+- **See Who Liked You:** View users who swiped right on your profile
+- **My Likes:** Track users you've liked
+- **Match Creation:** Automatic match when both users like each other
+- **Real-time Updates:** Instant notification of new likes
+
+### 🔍 Match List
+- **Real-time Search:** Filter matches by partner name as you type
+- **Match Management:** View all your matches in one place
+- **Last Message Preview:** See the most recent message
+- **Direct Chat Access:** Tap to open conversation
+
+### 🚫 Block System
+- **User Blocking:** Block unwanted users from your profile view
+- **Chat Prevention:** Blocked users cannot message you
+- **Feed Filtering:** Blocked users won't appear in swipe cards
+- **Mutual Protection:** Works both ways for safety
 
 ### 🔐 Authentication
-- **Secure Registration:** Email-based account creation
-- **Login System:** Persistent session management
-- **Data Protection:** Secure user data handling
+- **Firebase Auth:** Secure email/password authentication
+- **Session Management:** Persistent login with auto-redirect
+- **Password Security:** Re-authentication required for password changes
+- **Account Recovery:** Secure password reset flow
 
 ---
 
@@ -217,26 +271,36 @@ git push origin feature/your-feature-name
 ## 📋 Project Status
 
 ### ✅ Completed Features
-- [x] User Authentication (Login/Register)
+- [x] Firebase Authentication (Login/Register)
+- [x] Cloud Firestore Integration
 - [x] Profile Creation and Management
+- [x] Profile Photo Verification Badge
 - [x] Card Stack Matching Interface
-- [x] Real-time Chat System
-- [x] Match List and Management
+- [x] Real-time Chat System with Firestore
+- [x] Match List with Real-time Search
+- [x] Likes Management (See Likes & My Likes)
+- [x] Block System
+- [x] Password Change with Re-authentication
+- [x] Account Deletion with Data Cleanup
 - [x] Onboarding Flow
+- [x] Splash Screen
 - [x] Bottom Navigation
+- [x] Pull to Refresh
+- [x] Shimmer Loading Effects
 
 ### 🚧 In Progress
+- [ ] Photo Upload to Firebase Storage
 - [ ] Push Notifications
 - [ ] Advanced Matching Algorithm
 - [ ] Photo Upload from Camera
-- [ ] Location-based Matching
 
 ### 📅 Future Enhancements
 - [ ] Video Chat Integration
 - [ ] Social Media Integration
-- [ ] Advanced Profile Verification
+- [ ] Email Verification
 - [ ] Dating Event Organization
 - [ ] Premium Features
+- [ ] Location-based Matching
 
 ---
 
@@ -265,9 +329,44 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 🔥 Firebase Integration
+
+### Firestore Collections
+```
+users/
+  {userId}/
+    - uid, username, name, email, bio, age
+    - schoolyear, gender, major, photoUrl
+    - photoVerified (boolean)
+    - preference { gender, yearPreferences, majorPreferences }
+
+matches/
+  {matchId}/
+    - users: [userId1, userId2]
+    - timestamp, lastMessage
+    chats/
+      {chatId}/
+        - senderId, text, timestamp
+
+swipes/
+  {userId}/
+    - liked: [userIds]
+    - passed: [userIds]
+
+blocks/
+  {userId}/
+    - blockedUsers: [userIds]
+```
+
+### Security Rules
+See `FIREBASE_SETUP.md` for detailed Firestore security rules configuration.
+
+---
+
 ## 🙏 Acknowledgments
 
 - **Universitas Multimedia Nusantara** for providing the educational environment
+- **Firebase** for backend infrastructure
 - **Android Development Community** for excellent documentation and resources
 - **Open Source Libraries** that made this project possible
 - **Beta Testers** from UMN student community
