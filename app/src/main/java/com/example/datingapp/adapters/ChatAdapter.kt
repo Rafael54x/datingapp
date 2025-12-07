@@ -13,7 +13,8 @@ import com.example.datingapp.models.Message
 class ChatAdapter(
     private val context: Context,
     private val messages: MutableList<Message>,
-    private val loggedInUserId: String // ID user yang sedang login
+    private val loggedInUserId: String,
+    private val onDeleteMessage: ((Message, Int) -> Unit)? = null
 ) : RecyclerView.Adapter<ChatAdapter.MessageViewHolder>() {
 
     // Konstanta untuk membedakan tipe view (pesan dikirim vs diterima)
@@ -27,7 +28,7 @@ class ChatAdapter(
         val message = messages[position]
         // Jika pengirim adalah user yang login, gunakan layout sent
         // Jika bukan, gunakan layout received
-        return if (message.sender == loggedInUserId) {
+        return if (message.senderId == loggedInUserId) {
             VIEW_TYPE_SENT
         } else {
             VIEW_TYPE_RECEIVED
@@ -51,26 +52,22 @@ class ChatAdapter(
         val message = messages[position]
         holder.bind(message)
 
-        // Set listener untuk long press - menampilkan dialog konfirmasi hapus
-        holder.itemView.setOnLongClickListener {
-            AlertDialog.Builder(context)
-                .setTitle("Delete Chat")
-                .setMessage("Are you sure you want to delete this message?")
-                .setPositiveButton("Yes") { _, _ ->
-                    // Ambil posisi item yang valid saat ini
-                    val currentPosition = holder.bindingAdapterPosition
-                    if (currentPosition != RecyclerView.NO_POSITION) {
-                        // Hapus pesan dari list
-                        messages.removeAt(currentPosition)
-                        // Notify adapter bahwa item telah dihapus
-                        notifyItemRemoved(currentPosition)
-                        // Update range item yang terpengaruh
-                        notifyItemRangeChanged(currentPosition, messages.size)
+        // Long press hanya untuk pesan yang dikirim sendiri
+        if (message.senderId == loggedInUserId) {
+            holder.itemView.setOnLongClickListener {
+                AlertDialog.Builder(context)
+                    .setTitle("Delete Message")
+                    .setMessage("Delete this message for everyone?")
+                    .setPositiveButton("Delete") { _, _ ->
+                        val currentPosition = holder.bindingAdapterPosition
+                        if (currentPosition != RecyclerView.NO_POSITION) {
+                            onDeleteMessage?.invoke(message, currentPosition)
+                        }
                     }
-                }
-                .setNegativeButton("No", null)
-                .show()
-            true // Return true karena long press telah dihandle
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                true
+            }
         }
     }
 

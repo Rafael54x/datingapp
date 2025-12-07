@@ -2,184 +2,367 @@ package com.example.datingapp.fragments
 
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.ImageView
+import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.example.datingapp.R
 import com.example.datingapp.adapters.CardStackAdapter
+import com.example.datingapp.models.Gender
+import com.example.datingapp.models.Jurusan
 import com.example.datingapp.models.User
-import com.example.datingapp.utils.DummyData
-import com.example.datingapp.utils.SharedPrefManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.yuyakaido.android.cardstackview.*
 
 class HomeFragment : Fragment(), CardStackListener {
 
-    // Variabel untuk mengelola card stack (swipe cards)
-    private lateinit var sharedPrefManager: SharedPrefManager
     private lateinit var cardStackView: CardStackView
     private lateinit var layoutManager: CardStackLayoutManager
     private lateinit var adapter: CardStackAdapter
-    private var users: List<User> = listOf()
+    private var users: MutableList<User> = mutableListOf()
+    private var allUsers: MutableList<User> = mutableListOf()
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
+    // Firebase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var myId: String
+
+    // Undo feature
+    private var lastSwipedUser: User? = null
+    private var lastSwipeDirection: Direction? = null
+    
+    // Filter preferences
+    private var filterGender: Gender? = null
+    private var filterMajor: Jurusan? = null
+    private var filterYear: String? = null
+
+    private val TAG = "HomeFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate layout untuk fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Inisialisasi SharedPrefManager
-        sharedPrefManager = SharedPrefManager(requireContext())
+        // Initialize Firebase
+        auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
 
-        // Ambil user yang sedang login
-        val loggedInUser = sharedPrefManager.getUser()
+        if (auth.currentUser == null) {
+            // Handle user not logged in
+            return view
+        }
+        myId = auth.currentUser!!.uid
 
-        // Filter users: tampilkan semua kecuali user yang sedang login
-        users = DummyData.users.filter { it.uid != loggedInUser?.uid }
-
-        // Ambil referensi CardStackView dari layout
+        // Setup CardStackView
         cardStackView = view.findViewById(R.id.card_stack_view)
-
-        // Buat adapter dengan list users
         adapter = CardStackAdapter(users)
-
-        // Setup layout manager untuk card stack
         layoutManager = CardStackLayoutManager(requireContext(), this).apply {
-            // Set metode swipe: otomatis dan manual
             setSwipeableMethod(SwipeableMethod.AutomaticAndManual)
-            // Set interpolator untuk animasi overlay
             setOverlayInterpolator(LinearInterpolator())
         }
-
-        // Set layout manager dan adapter ke CardStackView
         cardStackView.layoutManager = layoutManager
         cardStackView.adapter = adapter
 
-        // Setup tombol like - swipe otomatis ke kanan
-        view.findViewById<ImageButton>(R.id.like_button).setOnClickListener {
-            cardStackView.swipe()
-        }
-
-        // Setup tombol dislike - swipe otomatis (arah default)
-        view.findViewById<ImageButton>(R.id.dislike_button).setOnClickListener {
-            cardStackView.swipe()
-        }
-
-        // Setup tombol inspect - lihat profile detail user
-        view.findViewById<ImageButton>(R.id.inspect_button).setOnClickListener {
-            // Ambil posisi card teratas
-            val position = layoutManager.topPosition
-
-            // Pastikan posisi valid
-            if (position < users.size) {
-                val user = users[position]
-
-                // Buat ProfileViewFragment dengan user ID
-                val profileView = ProfileViewFragment.newInstance(user.uid)
-
-                // Navigate ke ProfileViewFragment
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, profileView)
-                    .addToBackStack(null) // Tambahkan ke back stack agar bisa back
-                    .commit()
-            }
-        }
+        setupButtons(view)
+        setupSwipeRefresh(view)
+        loadUsersFromFirestore()
 
         return view
     }
 
-    // Dipanggil saat card di-swipe
-    override fun onCardSwiped(direction: Direction?) {
-        // Jika swipe ke kanan (like)
-        if (direction == Direction.Right) {
-            // Ambil posisi card yang baru saja di-swipe (topPosition - 1)
-            val position = layoutManager.topPosition - 1
-
-            // Pastikan posisi valid
+    private fun setupButtons(view: View) {
+        view.findViewById<ImageButton>(R.id.like_button).setOnClickListener {
+            val setting = SwipeAnimationSetting.Builder()
+                .setDirection(Direction.Right)
+                .setDuration(200)
+                .build()
+            layoutManager.setSwipeAnimationSetting(setting)
+            cardStackView.swipe()
+        }
+        view.findViewById<ImageButton>(R.id.dislike_button).setOnClickListener {
+            val setting = SwipeAnimationSetting.Builder()
+                .setDirection(Direction.Left)
+                .setDuration(200)
+                .build()
+            layoutManager.setSwipeAnimationSetting(setting)
+            cardStackView.swipe()
+        }
+        view.findViewById<ImageButton>(R.id.inspect_button).setOnClickListener {
+            val position = layoutManager.topPosition
             if (position < users.size) {
-                val likedUser = users[position]
-
-                // Simpan like ke SharedPreferences
-                sharedPrefManager.addLike(likedUser.uid)
-
-                // Tampilkan dialog match
-                showMatchDialog(likedUser)
+                val user = users[position]
+                val profileView = ProfileViewFragment.newInstance(user.uid)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, profileView)
+                    .addToBackStack(null)
+                    .commit()
             }
+        }
+        
+        // Undo button
+        view.findViewById<ImageButton>(R.id.undo_button)?.setOnClickListener {
+            undoLastSwipe()
+        }
+        
+        // Filter button
+        view.findViewById<ImageButton>(R.id.filter_button)?.setOnClickListener {
+            showFilterDialog()
+        }
+    }
+    
+    private fun setupSwipeRefresh(view: View) {
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+        swipeRefreshLayout.setOnRefreshListener {
+            loadUsersFromFirestore()
         }
     }
 
-    // Tampilkan dialog ketika terjadi match
-    private fun showMatchDialog(matchedUser: User) {
-        // Buat dialog custom
+    private fun loadUsersFromFirestore() {
+        swipeRefreshLayout.isRefreshing = true
+        
+        // Get current user's gender first
+        firestore.collection("users").document(myId).get()
+            .addOnSuccessListener { myDoc ->
+                val myGender = myDoc.getString("gender")
+                
+                firestore.collection("swipes").document(myId).get()
+                    .addOnSuccessListener { swipeDoc ->
+                        val liked = (swipeDoc.get("liked") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+                        val passed = (swipeDoc.get("passed") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+                        val alreadySwiped = (liked + passed).toSet()
+
+                        firestore.collection("users").get()
+                            .addOnSuccessListener { result ->
+                                allUsers = result.toObjects(User::class.java).toMutableList()
+                                var potentialMatches = allUsers.filter { user ->
+                                    // Filter: not me, not already swiped, opposite gender only
+                                    val isNotMe = user.uid != myId
+                                    val notSwiped = !alreadySwiped.contains(user.uid)
+                                    val oppositeGender = when(myGender) {
+                                        "M" -> user.gender?.name == "F"
+                                        "F" -> user.gender?.name == "M"
+                                        else -> true
+                                    }
+                                    isNotMe && notSwiped && oppositeGender
+                                }
+                                
+                                // Apply additional filters
+                                potentialMatches = applyFilters(potentialMatches)
+                                
+                                users.clear()
+                                users.addAll(potentialMatches)
+                                adapter.notifyDataSetChanged()
+                                swipeRefreshLayout.isRefreshing = false
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.w(TAG, "Error getting documents: ", exception)
+                                Toast.makeText(context, "Failed to load users.", Toast.LENGTH_SHORT).show()
+                                swipeRefreshLayout.isRefreshing = false
+                            }
+                    }
+            }
+    }
+    
+    private fun applyFilters(userList: List<User>): List<User> {
+        var filtered = userList
+        
+        filterGender?.let { gender ->
+            filtered = filtered.filter { it.gender == gender }
+        }
+        
+        filterMajor?.let { major ->
+            filtered = filtered.filter { it.major == major }
+        }
+        
+        filterYear?.let { year ->
+            filtered = filtered.filter { it.schoolyear == year }
+        }
+        
+        return filtered
+    }
+
+    override fun onCardSwiped(direction: Direction?) {
+        val position = layoutManager.topPosition - 1
+        if (position >= users.size) return
+
+        val swipedUser = users[position]
+        lastSwipedUser = swipedUser
+        lastSwipeDirection = direction
+        val otherId = swipedUser.uid
+
+        if (direction == Direction.Right) {
+            swipeRight(myId, otherId)
+        } else {
+            swipeLeft(myId, otherId)
+        }
+    }
+    
+    private fun undoLastSwipe() {
+        if (lastSwipedUser == null) {
+            Toast.makeText(context, "No swipe to undo", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        val userId = lastSwipedUser!!.uid
+        val field = if (lastSwipeDirection == Direction.Right) "liked" else "passed"
+        
+        firestore.collection("swipes").document(myId)
+            .update(field, FieldValue.arrayRemove(userId))
+            .addOnSuccessListener {
+                layoutManager.setTopPosition(layoutManager.topPosition - 1)
+                Toast.makeText(context, "Swipe undone", Toast.LENGTH_SHORT).show()
+                lastSwipedUser = null
+                lastSwipeDirection = null
+            }
+    }
+    
+    private fun showFilterDialog() {
         val dialog = Dialog(requireContext())
-        dialog.setContentView(R.layout.dialog_match)
+        dialog.setContentView(R.layout.dialog_filter)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        
+        val genderSpinner = dialog.findViewById<Spinner>(R.id.filter_gender_spinner)
+        val majorSpinner = dialog.findViewById<Spinner>(R.id.filter_major_spinner)
+        val yearSpinner = dialog.findViewById<Spinner>(R.id.filter_year_spinner)
+        
+        val genderAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, 
+            listOf("All", "Male", "Female"))
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        genderSpinner.adapter = genderAdapter
+        
+        val majorAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
+            listOf("All") + Jurusan.values().map { it.name })
+        majorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        majorSpinner.adapter = majorAdapter
+        
+        val yearAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
+            listOf("All", "2021", "2022", "2023", "2024", "2025"))
+        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        yearSpinner.adapter = yearAdapter
+        
+        dialog.findViewById<Button>(R.id.apply_filter_button).setOnClickListener {
+            filterGender = when(genderSpinner.selectedItem.toString()) {
+                "Male" -> Gender.M
+                "Female" -> Gender.F
+                else -> null
+            }
+            
+            filterMajor = if (majorSpinner.selectedItem.toString() != "All") {
+                Jurusan.valueOf(majorSpinner.selectedItem.toString())
+            } else null
+            
+            filterYear = if (yearSpinner.selectedItem.toString() != "All") {
+                yearSpinner.selectedItem.toString()
+            } else null
+            
+            loadUsersFromFirestore()
+            dialog.dismiss()
+            Toast.makeText(context, "Filter applied", Toast.LENGTH_SHORT).show()
+        }
+        
+        dialog.findViewById<Button>(R.id.clear_filter_button).setOnClickListener {
+            filterGender = null
+            filterMajor = null
+            filterYear = null
+            loadUsersFromFirestore()
+            dialog.dismiss()
+            Toast.makeText(context, "Filter cleared", Toast.LENGTH_SHORT).show()
+        }
+        
+        dialog.show()
+    }
 
-        // Set background transparan
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+    private fun swipeRight(myId: String, otherId: String) {
+        val swipesRef = firestore.collection("swipes")
+        val myDocRef = swipesRef.document(myId)
 
-        // Set ukuran dialog
-        dialog.window?.setLayout(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+        myDocRef.set(mapOf("liked" to FieldValue.arrayUnion(otherId)), SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d(TAG, "Liked user: $otherId")
+                // Check for a match
+                swipesRef.document(otherId).get()
+                    .addOnSuccessListener { snap ->
+                        val otherLiked = snap.get("liked") as? List<*>
+                        if (otherLiked?.contains(myId) == true) {
+                            // Match found!
+                            Log.d(TAG, "Match found with $otherId")
+                            val matchId = listOf(myId, otherId).sorted().joinToString("_")
+                            createMatch(matchId, myId, otherId)
+                            val matchedUser = users.firstOrNull { it.uid == otherId }
+                            if (matchedUser != null) {
+                                showMatchDialog(matchedUser, matchId)
+                            }
+                        }
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error on swipe right: ${e.message}")
+            }
+    }
+
+    private fun swipeLeft(myId: String, otherId: String) {
+        val swipesRef = firestore.collection("swipes")
+        swipesRef.document(myId).set(mapOf("passed" to FieldValue.arrayUnion(otherId)), SetOptions.merge())
+            .addOnSuccessListener { Log.d(TAG, "Passed user: $otherId") }
+    }
+
+    private fun createMatch(matchId: String, userA: String, userB: String) {
+        val matchesRef = firestore.collection("matches")
+        val matchData = mapOf(
+            "users" to listOf(userA, userB),
+            "lastMessage" to "You matched! Say hi!",
+            "timestamp" to FieldValue.serverTimestamp()
         )
 
-        // Ambil ImageView untuk foto user yang match
-        val userImageView = dialog.findViewById<ImageView>(R.id.match_user_image)
+        // Use SetOptions.merge() to create the document if it doesn't exist, or update it if it does.
+        // This prevents overwriting data if the match document was created by the other user.
+        matchesRef.document(matchId).set(matchData, SetOptions.merge())
+            .addOnSuccessListener { Log.d(TAG, "Match document ensured: $matchId") }
+            .addOnFailureListener { e -> Log.e(TAG, "Error creating match: ${e.message}") }
+    }
 
-        // Load foto user menggunakan Glide
+
+    private fun showMatchDialog(matchedUser: User, matchId: String) {
+        if (!isAdded) return // Ensure fragment is attached
+
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_match)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        val userImageView = dialog.findViewById<ImageView>(R.id.match_user_image)
         matchedUser.photoUrl?.let {
             Glide.with(requireContext()).load(it).into(userImageView)
         }
 
-        // Setup tombol "Start Chatting"
         dialog.findViewById<Button>(R.id.start_chatting_button).setOnClickListener {
-            // Tutup dialog
             dialog.dismiss()
-
-            // Buat ChatFragment dengan data user yang match
-            val chatFragment = ChatFragment.newInstance(
-                matchedUser.uid,
-                matchedUser.name ?: "",
-                matchedUser.photoUrl ?: ""
-            )
-
-            // Navigate ke ChatFragment
+            // The key change is here: Pass the matchId
+            val chatFragment = ChatFragment.newInstance(matchId)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, chatFragment)
                 .addToBackStack(null)
                 .commit()
         }
-
-        // Tampilkan dialog
         dialog.show()
     }
 
-    // Callback methods dari CardStackListener (tidak digunakan tapi harus diimplementasi)
-    override fun onCardDragging(direction: Direction?, ratio: Float) {
-        // Dipanggil saat card sedang di-drag
-    }
-
-    override fun onCardRewound() {
-        // Dipanggil saat card di-rewind (undo swipe)
-    }
-
-    override fun onCardCanceled() {
-        // Dipanggil saat swipe dibatalkan
-    }
-
-    override fun onCardAppeared(view: View?, position: Int) {
-        // Dipanggil saat card muncul
-    }
-
-    override fun onCardDisappeared(view: View?, position: Int) {
-        // Dipanggil saat card menghilang
-    }
+    // Unused CardStackListener methods
+    override fun onCardDragging(direction: Direction?, ratio: Float) {}
+    override fun onCardRewound() {}
+    override fun onCardCanceled() {}
+    override fun onCardAppeared(view: View?, position: Int) {}
+    override fun onCardDisappeared(view: View?, position: Int) {}
 
     companion object {
         @JvmStatic

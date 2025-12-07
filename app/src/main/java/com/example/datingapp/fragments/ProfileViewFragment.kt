@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.datingapp.R
 import com.example.datingapp.models.User
-import com.example.datingapp.utils.DummyData
 import android.app.Dialog
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
@@ -19,14 +19,16 @@ import android.view.Gravity
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import com.google.firebase.firestore.FirebaseFirestore
 
 // Konstanta untuk argument key
 private const val ARG_USER_ID = "userId"
 
 class ProfileViewFragment : Fragment() {
-    // ID user yang akan ditampilkan profilenya
     private var userId: String? = null
     private lateinit var profileImage: ImageView
+    private lateinit var firestore: FirebaseFirestore
+    private var isPhotoVerified: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,27 +49,38 @@ class ProfileViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ambil referensi profile image
+        firestore = FirebaseFirestore.getInstance()
         profileImage = view.findViewById(R.id.profile_image)
 
-        // Setup tombol scan - untuk verifikasi foto
-        view.findViewById<View>(R.id.scan_button).setOnClickListener {
-            showProfilePopup()
-        }
+        loadUserData(view)
+    }
 
-        // Cari user berdasarkan ID dari DummyData
-        val user = DummyData.users.find { it.uid == userId }
+    private fun loadUserData(view: View) {
+        val uid = userId ?: return
 
-        // Jika user ditemukan, tampilkan datanya
-        user?.let {
-            populateProfileData(view, it)
-        }
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) {
+                    Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val user = doc.toObject(User::class.java)
+                user?.let {
+                    isPhotoVerified = doc.getBoolean("photoVerified") ?: false
+                    populateProfileData(view, it)
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show()
+            }
     }
 
     // Isi semua view dengan data user
     private fun populateProfileData(view: View, user: User) {
         // Ambil referensi semua views
         val profileImage = view.findViewById<ImageView>(R.id.profile_image)
+        val verifiedBadge = view.findViewById<ImageView>(R.id.verified_badge)
         val profileUsername = view.findViewById<TextView>(R.id.profile_username)
         val profileBio = view.findViewById<TextView>(R.id.profile_bio)
         val profileAge = view.findViewById<TextView>(R.id.profile_age)
@@ -81,6 +94,13 @@ class ProfileViewFragment : Fragment() {
             .placeholder(R.drawable.ic_profile_placeholder)
             .error(R.drawable.ic_profile_placeholder)
             .into(profileImage)
+
+        // Show verified badge if photo is verified
+        if (isPhotoVerified) {
+            verifiedBadge.visibility = View.VISIBLE
+        } else {
+            verifiedBadge.visibility = View.GONE
+        }
 
         // Set semua data user ke TextView
         profileUsername.text = user.username
@@ -179,6 +199,17 @@ class ProfileViewFragment : Fragment() {
             }, 2000)
 
         }, 3000) // Delay 3 detik untuk scanning
+
+        // Update verified text berdasarkan status
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isPhotoVerified) {
+                verifiedText.text = "✓ Verified Original Photo"
+                verifiedText.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+            } else {
+                verifiedText.text = "⚠ Photo Not Verified"
+                verifiedText.setTextColor(resources.getColor(android.R.color.holo_orange_dark, null))
+            }
+        }, 5000)
 
         // Tampilkan dialog
         dialog.show()

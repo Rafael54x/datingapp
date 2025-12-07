@@ -100,6 +100,42 @@ class SharedPrefManager(private val context: Context) {
         loggedInUser = null
     }
 
+    // Cek apakah user sudah login
+    fun isLoggedIn(): Boolean {
+        return getUser() != null
+    }
+
+    // Ambil user yang sedang login
+    fun getCurrentUser(): User? {
+        return getUser()
+    }
+
+    // Ambil daftar matches untuk user yang sedang login
+    fun getMatches(): List<Pair<com.example.datingapp.models.Match, User>> {
+        val currentUser = getUser() ?: return emptyList()
+        val matches = mutableListOf<Pair<com.example.datingapp.models.Match, User>>()
+
+        // Cari user yang saling like (mutual match)
+        DummyData.users.forEach { otherUser ->
+            if (otherUser.uid != currentUser.uid) {
+                val welikeThem = currentUser.likes.contains(otherUser.uid)
+                val theyLikeUs = otherUser.likes.contains(currentUser.uid)
+
+                if (welikeThem && theyLikeUs) {
+                    val match = com.example.datingapp.models.Match(
+                        matchId = "${currentUser.uid}_${otherUser.uid}",
+                        user1 = currentUser.uid,
+                        user2 = otherUser.uid,
+                        users = listOf(currentUser.uid, otherUser.uid)
+                    )
+                    matches.add(Pair(match, otherUser))
+                }
+            }
+        }
+
+        return matches
+    }
+
     companion object {
         // Variabel static untuk menyimpan user yang sedang login
         // Bisa diakses dari mana saja tanpa perlu instance SharedPrefManager

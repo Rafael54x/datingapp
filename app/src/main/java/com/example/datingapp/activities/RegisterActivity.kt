@@ -2,69 +2,122 @@ package com.example.datingapp.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.datingapp.R
-import com.example.datingapp.models.User
-import com.example.datingapp.utils.SharedPrefManager
+import com.example.datingapp.models.Gender
+import com.example.datingapp.models.Jurusan
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class RegisterActivity : AppCompatActivity() {
 
-    // SharedPrefManager untuk menyimpan data user
-    private lateinit var sharedPrefManager: SharedPrefManager
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Inisialisasi SharedPrefManager
-        sharedPrefManager = SharedPrefManager(this)
+        auth = FirebaseAuth.getInstance()
+        val firestore = Firebase.firestore
 
-        // Ambil referensi input fields dari layout
         val edtUsername = findViewById<EditText>(R.id.username)
         val edtPass = findViewById<EditText>(R.id.password)
         val edtName = findViewById<EditText>(R.id.name)
+        val edtEmail = findViewById<EditText>(R.id.email)
+        val edtAge = findViewById<EditText>(R.id.age)
+        val edtGender = findViewById<AutoCompleteTextView>(R.id.gender)
+        val edtSchoolYear = findViewById<EditText>(R.id.schoolyear)
+        val edtMajor = findViewById<AutoCompleteTextView>(R.id.major)
         val btnSignUp = findViewById<Button>(R.id.btnSignUp)
 
-        // Set listener untuk tombol sign up
+        setupDropdowns(edtGender, edtMajor)
+
         btnSignUp.setOnClickListener {
-            // Ambil text dari input dan hapus whitespace di awal/akhir
             val username = edtUsername.text.toString().trim()
             val password = edtPass.text.toString().trim()
             val name = edtName.text.toString().trim()
+            val email = edtEmail.text.toString().trim()
+            val age = edtAge.text.toString().trim()
+            val genderStr = edtGender.text.toString().trim()
+            val schoolyear = edtSchoolYear.text.toString().trim()
+            val majorStr = edtMajor.text.toString().trim()
 
-            // Validasi: pastikan semua field terisi
-            if (username.isEmpty() || password.isEmpty() || name.isEmpty()) {
+            if (username.isEmpty() || password.isEmpty() || name.isEmpty() || email.isEmpty() ||
+                age.isEmpty() || genderStr.isEmpty() || schoolyear.isEmpty() || majorStr.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Buat object User baru dengan data yang diinput
-            // Menggunakan username untuk uid dan membuat dummy email
-            val newUser = User(
-                uid = username,
-                name = name,
-                username = username,
-                email = "$username@example.com", // Email dummy
-                password = password,
-                likes = mutableListOf(),
-                photoUrl = "https://example.com/default_profile_pic.jpg"
-            )
+            if (password.length < 6) {
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-            // Daftarkan user ke DummyData
-            sharedPrefManager.register(newUser)
-            // Simpan user ke SharedPreferences (login otomatis)
-            sharedPrefManager.saveUser(newUser)
+            val gender = Gender.values().find { it.displayName == genderStr }?.name
+            val major = Jurusan.values().find { it.displayName == majorStr }?.name
 
-            // Tampilkan pesan sukses
-            Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show()
+            Log.d("RegisterActivity", "Starting registration for: $email")
 
-            // Pindah ke MainActivity
-            startActivity(Intent(this, MainActivity::class.java))
-            // Tutup semua activity sebelumnya agar user tidak bisa back ke register
-            finishAffinity()
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener { authResult ->
+                    Log.d("RegisterActivity", "Auth success, creating Firestore document")
+                    val user = authResult.user ?: return@addOnSuccessListener
+                    val userId = user.uid
+                    Log.d("RegisterActivity", "User ID: $userId")
+                    val userDoc = hashMapOf(
+                        "uid" to userId,
+                        "username" to username,
+                        "name" to name,
+                        "email" to email,
+                        "password" to password,
+                        "bio" to "",
+                        "age" to age,
+                        "schoolyear" to schoolyear,
+                        "gender" to gender,
+                        "major" to major,
+                        "photoUrl" to "",
+                        "school" to "UMN",
+                        "likes" to listOf<String>(),
+                        "preference" to mapOf(
+                            "gender" to if (gender == "M") "F" else "M",
+                            "yearPreferences" to "ANY",
+                            "majorPreferences" to listOf<String>()
+                        )
+                    )
+                    firestore.collection("users").document(userId)
+                        .set(userDoc)
+                        .addOnSuccessListener {
+                            Log.d("RegisterActivity", "Firestore document created successfully")
+                            Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finishAffinity()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("RegisterActivity", "Firestore error: ${e.message}", e)
+                            Toast.makeText(this, "Failed to save user data: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("RegisterActivity", "Auth error: ${e.message}", e)
+                    Toast.makeText(this, "Registration failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
         }
+    }
+
+    private fun setupDropdowns(genderDropdown: AutoCompleteTextView, majorDropdown: AutoCompleteTextView) {
+        val genders = Gender.values().map { it.displayName }
+        val genderAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, genders)
+        genderDropdown.setAdapter(genderAdapter)
+
+        val majors = Jurusan.values().map { it.displayName }
+        val majorAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, majors)
+        majorDropdown.setAdapter(majorAdapter)
     }
 }
