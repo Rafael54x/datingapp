@@ -1,62 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient"
-    android:padding="32dp">
+    android:background="@drawable/bg_gradient">
 
-    <!-- Logo container dengan efek shadow -->
+    <!-- Animated hearts background decoration (optional) -->
+    <ImageView
+        android:id="@+id/heart_decoration_1"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_like"
+        android:alpha="0.15"
+        android:rotation="15"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="40dp"
+        app:tint="#FFFFFF" />
+
+    <ImageView
+        android:id="@+id/heart_decoration_2"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_like"
+        android:alpha="0.1"
+        android:rotation="-20"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="160dp"
+        android:layout_marginStart="30dp"
+        app:tint="#FFFFFF" />
+
+    <ImageView
+        android:id="@+id/heart_decoration_3"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_like"
+        android:alpha="0.12"
+        android:rotation="25"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="200dp"
+        android:layout_marginStart="50dp"
+        app:tint="#FFFFFF" />
+
+    <!-- Main content container -->
     <LinearLayout
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
-        android:elevation="6dp"
-        android:layout_marginBottom="40dp">
+        android:padding="32dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.4">
 
-        <ImageView
+        <!-- Logo container with shadow effect -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:src="@drawable/logomap"
-            android:contentDescription="App Logo" />
+            app:cardCornerRadius="100dp"
+            app:cardElevation="12dp"
+            app:cardBackgroundColor="#FFFFFF"
+            android:layout_marginBottom="48dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="20dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/logomap"
+                    android:contentDescription="App Logo"
+                    android:scaleType="centerInside" />
+            </FrameLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Title with better typography -->
+        <TextView
+            android:text="Welcome to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:textColor="#F5F5F5"
+            android:fontFamily="@font/poppins_regular"
+            android:alpha="0.9"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:text="UMN Dating App"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="42sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/poppins_bold"
+            android:letterSpacing="0.02"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Description with better spacing -->
+        <TextView
+            android:text="Find your perfect match"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:text="Connect with people around you"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#E8E8E8"
+            android:alpha="0.85"
+            android:gravity="center"
+            android:layout_marginBottom="56dp" />
+
+        <!-- Modern continue button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_continue"
+            android:layout_width="280dp"
+            android:layout_height="64dp"
+            android:text="Get Started"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="#5A2D82"
+            app:cornerRadius="32dp"
+            app:backgroundTint="#FFFFFF"
+            android:elevation="8dp"
+            app:icon="@android:drawable/ic_media_play"
+            app:iconGravity="end"
+            app:iconTint="#5A2D82"
+            app:iconSize="24dp" />
+
+        <!-- Additional info text -->
+        <TextView
+            android:text="Start your journey to find love"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#FFFFFF"
+            android:alpha="0.7"
+            android:gravity="center"
+            android:layout_marginTop="24dp" />
+
     </LinearLayout>
 
-    <!-- Judul utama -->
-    <TextView
-        android:text="Welcome to LocalDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:fontFamily="@font/poppins_bold"
-        android:layout_marginBottom="12dp" />
+    <!-- Bottom decoration (optional wave or pattern) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:alpha="0.08"
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- Deskripsi -->
-    <TextView
-        android:text="Find your soulmate locally using dummy data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:fontFamily="@font/poppins_regular"
-        android:textColor="#EDEDED"
-        android:gravity="center"
-        android:layout_marginBottom="40dp" />
-
-    <!-- Tombol Continue -->
-    <Button
-        android:id="@+id/btn_continue"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:text="Continue"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/poppins_semibold"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#5A2D82"
-        android:padding="12dp"
-        android:elevation="4dp"
-        android:background="@drawable/btn_modern" />
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
