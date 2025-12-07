@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -37,6 +38,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    aaptOptions {
+        noCompress("tflite")
+    }
 }
 
 dependencies {
@@ -47,6 +51,11 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
     // Add the new dependencies
     implementation(libs.androidx.recyclerview)
     implementation(libs.yuyakaido.cardstackview)
@@ -54,6 +63,11 @@ dependencies {
     kapt(libs.bumptech.glide.compiler) // Use 'kapt' for the compiler
     implementation(libs.de.hdodenhof.circleimageview)
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // TFLite dependencies - REPLACED
+    implementation("org.tensorflow:tensorflow-lite:2.9.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.0")
+
 
     // Test dependencies
     testImplementation(libs.junit)
