@@ -1,6 +1,8 @@
 package com.example.datingapp.utils
 
 import com.example.datingapp.models.Message
+import com.google.firebase.Timestamp
+import java.util.Date
 
 // Object singleton untuk mengelola chat dummy
 object DummyChatManager {
@@ -30,9 +32,9 @@ object DummyChatManager {
 
         // Pilih balasan secara random dan buat Message object
         return Message(
-            replies.random(), // Text random dari list
-            partnerId,        // Sender adalah partner
-            System.currentTimeMillis() // Timestamp sekarang
+            senderId = partnerId,
+            text = replies.random(),
+            timestamp = Timestamp(Date())
         )
     }
 
@@ -43,29 +45,25 @@ object DummyChatManager {
 
         // Buat list pesan dummy
         return mutableListOf(
-            // Partner memulai percakapan
             Message(
-                "Hey, how are you?",
-                partnerId,
-                System.currentTimeMillis()
+                senderId = partnerId,
+                text = "Hey, how are you?",
+                timestamp = Timestamp(Date())
             ),
-            // User membalas
             Message(
-                "I'm good, thanks! How about you?",
-                loggedInUserId,
-                System.currentTimeMillis() + 1000
+                senderId = loggedInUserId,
+                text = "I'm good, thanks! How about you?",
+                timestamp = Timestamp(Date(System.currentTimeMillis() + 1000))
             ),
-            // Partner membalas lagi
             Message(
-                "Doing great! Wanna grab a coffee sometime?",
-                partnerId,
-                System.currentTimeMillis() + 2000
+                senderId = partnerId,
+                text = "Doing great! Wanna grab a coffee sometime?",
+                timestamp = Timestamp(Date(System.currentTimeMillis() + 2000))
             ),
-            // User setuju
             Message(
-                "Sure, I'd love that!",
-                loggedInUserId,
-                System.currentTimeMillis() + 3000
+                senderId = loggedInUserId,
+                text = "Sure, I'd love that!",
+                timestamp = Timestamp(Date(System.currentTimeMillis() + 3000))
             )
         )
     }

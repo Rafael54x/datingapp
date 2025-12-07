@@ -13,33 +13,41 @@
         android:padding="16dp">
 
         <!-- Profile Header -->
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/profile_image_layout"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
             app:layout_constraintDimensionRatio="3:4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="350dp">
 
-            <ImageView
-                android:id="@+id/profile_image"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_profile_placeholder" />
+                android:layout_height="match_parent">
 
-            <ImageButton
-                android:id="@+id/scan_button"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_gravity="bottom|end"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Scan QR Code"
-                android:src="@drawable/outline_document_scanner_24" />
+                <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile_placeholder" />
 
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/verified_badge"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="12dp"
+                    android:src="@drawable/ic_verified"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/profile_username"

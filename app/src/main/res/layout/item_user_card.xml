@@ -19,11 +19,6 @@
             android:src="@drawable/ic_profile_placeholder" />
 
         <!-- Gradient overlay for better text readability -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/gradient_overlay" />
 
         <LinearLayout
             android:layout_width="match_parent"
