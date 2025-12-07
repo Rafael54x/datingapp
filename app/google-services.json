@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "101539278159",
+    "project_id": "umn-dating-app",
+    "storage_bucket": "umn-dating-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101539278159:android:97d449ef0013e13413693a",
+        "android_client_info": {
+          "package_name": "com.example.datingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG0t3lesp4AzuWRhoLRj3oAPD4_ocARiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
