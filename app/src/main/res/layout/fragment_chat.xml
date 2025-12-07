@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
 
     <include layout="@layout/chat_header" />
 
@@ -10,23 +12,64 @@
         android:id="@+id/recycler_chat"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"/>
 
     <LinearLayout
         android:orientation="horizontal"
-        android:padding="8dp"
+        android:padding="12dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF"
+        android:elevation="4dp">
 
-        <EditText android:id="@+id/input"
-            android:hint="Message"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#F0F0F0"
+            android:layout_marginEnd="8dp">
 
-        <Button android:id="@+id/send"
-            android:text="Send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <EditText
+                android:id="@+id/input"
+                android:hint="Type a message..."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:paddingVertical="12dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:textSize="16sp"
+                android:maxLines="4"
+                android:inputType="textCapSentences|textMultiLine"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/pink">
+
+            <Button
+                android:id="@+id/send"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="➤"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 </LinearLayout>
