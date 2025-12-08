@@ -106,13 +106,22 @@ class ProfileEditActivity : AppCompatActivity() {
                 binding.editFullname.setText(data["name"] as? String)
                 binding.editAge.setText(data["age"] as? String)
                 binding.editSchoolyear.setText(data["schoolyear"] as? String)
-                binding.editEmail.setText(data["email"] as? String)
+                (data["email"] as? String)?.let {
+                    binding.editEmail.setText(it)
+                    binding.editEmail.isEnabled = false // Email cannot be changed
+                }
 
                 (data["gender"] as? String)?.let { 
                     binding.editGender.setText(it, false)
                     binding.editGender.isEnabled = false // Gender cannot be changed
                 }
-                (data["major"] as? String)?.let { binding.editMajor.setText(it, false) }
+                (data["major"] as? String)?.let { majorStr ->
+                    // Check if it's enum name or displayName
+                    val majorDisplay = Jurusan.values().find { it.name == majorStr }?.displayName 
+                        ?: Jurusan.values().find { it.displayName == majorStr }?.displayName 
+                        ?: majorStr
+                    binding.editMajor.setText(majorDisplay, false)
+                }
 
                 currentPhotoUrl = data["photoUrl"] as? String
                 if (!currentPhotoUrl.isNullOrEmpty()) {
@@ -176,13 +185,19 @@ class ProfileEditActivity : AppCompatActivity() {
             (binding.majorPreferencesChipGroup.getChildAt(it) as Chip).text.toString()
         }
 
+        val majorDisplayName = binding.editMajor.text.toString()
+        // Convert displayName to enum name, or keep as is if already enum name
+        val majorEnumName = Jurusan.values().find { it.displayName == majorDisplayName }?.name 
+            ?: Jurusan.values().find { it.name == majorDisplayName }?.name 
+            ?: majorDisplayName
+        
         val userProfileMap = mutableMapOf<String, Any>(
             "username" to binding.editUsername.text.toString(),
             "name" to binding.editFullname.text.toString(),
             "bio" to binding.editBio.text.toString(),
             "age" to binding.editAge.text.toString(),
             "schoolyear" to binding.editSchoolyear.text.toString(),
-            "major" to binding.editMajor.text.toString(),
+            "major" to majorEnumName,
             "preference" to mapOf(
                 "gender" to binding.editGenderPreference.text.toString(),
                 "yearPreferences" to binding.editRange.text.toString(),
@@ -383,7 +398,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private fun setupDropdowns() {
         val genders = Gender.values().map { it.displayName }
         binding.editGender.setAdapter(createArrayAdapter(genders))
-        binding.genderInfoText.text = "Gender cannot be changed"
+        binding.genderInfoText.text = "Gender and Email cannot be changed"
 
         val majors = Jurusan.values().map { it.displayName }
         binding.editMajor.setAdapter(createArrayAdapter(majors))

@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.datingapp.R
+import com.example.datingapp.models.Jurusan
 import com.example.datingapp.models.User
 
 class CardStackAdapter(private val users: List<User>) :
@@ -37,7 +38,9 @@ class CardStackAdapter(private val users: List<User>) :
         // Set data ke views
         holder.name.text = user.name
         holder.age.text = user.age
-        holder.major.text = user.major?.displayName
+        holder.major.text = user.major?.let { 
+            Jurusan.values().find { it.name == user.major }?.displayName ?: user.major
+        }
         holder.schoolyear.text = user.schoolyear
 
         // Load foto menggunakan Glide library

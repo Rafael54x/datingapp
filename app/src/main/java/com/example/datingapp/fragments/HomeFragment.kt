@@ -42,7 +42,7 @@ class HomeFragment : Fragment(), CardStackListener {
     
     // Filter preferences
     private var filterGender: Gender? = null
-    private var filterMajor: Jurusan? = null
+    private var filterMajor: String? = null
     private var filterYear: String? = null
 
     private val TAG = "HomeFragment"
@@ -246,7 +246,7 @@ class HomeFragment : Fragment(), CardStackListener {
         
         dialog.findViewById<Button>(R.id.apply_filter_button).setOnClickListener {
             filterMajor = if (majorSpinner.selectedItem.toString() != "All") {
-                Jurusan.valueOf(majorSpinner.selectedItem.toString())
+                majorSpinner.selectedItem.toString()
             } else null
             
             filterYear = if (yearSpinner.selectedItem.toString() != "All") {
