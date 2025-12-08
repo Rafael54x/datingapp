@@ -1,9 +1,10 @@
 package com.example.datingapp.models
 
 enum class YearPreferences(val displayName: String) {
-    ONE("1st Year"),
-    TWO("2nd Year"),
-    THREE("3rd Year"),
-    FOUR("4th Year"),
-    ANY("Any")
+    YEAR_2021("2021"),
+    YEAR_2022("2022"),
+    YEAR_2023("2023"),
+    YEAR_2024("2024"),
+    YEAR_2025("2025"),
+    ALL("All")
 }

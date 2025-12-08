@@ -33,11 +33,11 @@ class RegisterActivity : AppCompatActivity() {
         val edtEmail = findViewById<EditText>(R.id.email)
         val edtAge = findViewById<EditText>(R.id.age)
         val edtGender = findViewById<AutoCompleteTextView>(R.id.gender)
-        val edtSchoolYear = findViewById<EditText>(R.id.schoolyear)
+        val edtSchoolYear = findViewById<AutoCompleteTextView>(R.id.schoolyear)
         val edtMajor = findViewById<AutoCompleteTextView>(R.id.major)
         val btnSignUp = findViewById<Button>(R.id.btnSignUp)
 
-        setupDropdowns(edtGender, edtMajor)
+        setupDropdowns(edtGender, edtSchoolYear, edtMajor)
 
         btnSignUp.setOnClickListener {
             val username = edtUsername.text.toString().trim()
@@ -87,7 +87,7 @@ class RegisterActivity : AppCompatActivity() {
                         "likes" to listOf<String>(),
                         "preference" to mapOf(
                             "gender" to if (gender == "M") "F" else "M",
-                            "yearPreferences" to "ANY",
+                            "yearPreferences" to "All",
                             "majorPreferences" to listOf<String>()
                         )
                     )
@@ -111,10 +111,14 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupDropdowns(genderDropdown: AutoCompleteTextView, majorDropdown: AutoCompleteTextView) {
+    private fun setupDropdowns(genderDropdown: AutoCompleteTextView, schoolYearDropdown: AutoCompleteTextView, majorDropdown: AutoCompleteTextView) {
         val genders = Gender.values().map { it.displayName }
         val genderAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, genders)
         genderDropdown.setAdapter(genderAdapter)
+
+        val schoolYears = listOf("2021", "2022", "2023", "2024", "2025")
+        val schoolYearAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, schoolYears)
+        schoolYearDropdown.setAdapter(schoolYearAdapter)
 
         val majors = Jurusan.values().map { it.displayName }
         val majorAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, majors)
