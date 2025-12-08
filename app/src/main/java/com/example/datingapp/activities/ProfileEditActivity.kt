@@ -190,7 +190,8 @@ class ProfileEditActivity : AppCompatActivity() {
             )
         )
 
-        if (imageUrl != null) {
+        // Only update photo fields if a new image was selected
+        if (selectedImageUri != null && imageUrl != null) {
             userProfileMap["photoUrl"] = imageUrl
             userProfileMap["photoVerified"] = (lastPredictedClass == "Ori")
         }
@@ -387,6 +388,9 @@ class ProfileEditActivity : AppCompatActivity() {
         val majors = Jurusan.values().map { it.displayName }
         binding.editMajor.setAdapter(createArrayAdapter(majors))
         binding.addMajorPreference.setAdapter(createArrayAdapter(majors))
+
+        val schoolYears = listOf("2021", "2022", "2023", "2024", "2025")
+        binding.editSchoolyear.setAdapter(createArrayAdapter(schoolYears))
 
         val yearPrefs = YearPreferences.values().map { it.displayName }
         binding.editRange.setAdapter(createArrayAdapter(yearPrefs))

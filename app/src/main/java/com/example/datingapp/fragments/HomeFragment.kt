@@ -231,14 +231,8 @@ class HomeFragment : Fragment(), CardStackListener {
         dialog.setContentView(R.layout.dialog_filter)
         dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         
-        val genderSpinner = dialog.findViewById<Spinner>(R.id.filter_gender_spinner)
         val majorSpinner = dialog.findViewById<Spinner>(R.id.filter_major_spinner)
         val yearSpinner = dialog.findViewById<Spinner>(R.id.filter_year_spinner)
-        
-        val genderAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, 
-            listOf("All", "Male", "Female"))
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        genderSpinner.adapter = genderAdapter
         
         val majorAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
             listOf("All") + Jurusan.values().map { it.name })
@@ -251,12 +245,6 @@ class HomeFragment : Fragment(), CardStackListener {
         yearSpinner.adapter = yearAdapter
         
         dialog.findViewById<Button>(R.id.apply_filter_button).setOnClickListener {
-            filterGender = when(genderSpinner.selectedItem.toString()) {
-                "Male" -> Gender.M
-                "Female" -> Gender.F
-                else -> null
-            }
-            
             filterMajor = if (majorSpinner.selectedItem.toString() != "All") {
                 Jurusan.valueOf(majorSpinner.selectedItem.toString())
             } else null

@@ -159,7 +159,7 @@ class ProfileFragment : Fragment() {
                     preferenceGender.text = Gender.values().find { g -> g.name == prefGender }?.displayName
 
                     val yearPref = it["yearPreferences"] as? String
-                    preferenceRange.text = YearPreferences.values().find { y -> y.name == yearPref }?.displayName
+                    preferenceRange.text = yearPref ?: "Not specified"
 
                     @Suppress("UNCHECKED_CAST")
                     val majorPrefs = it["majorPreferences"] as? List<String>
