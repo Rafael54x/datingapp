@@ -52,6 +52,10 @@ class ProfileViewFragment : Fragment() {
         firestore = FirebaseFirestore.getInstance()
         profileImage = view.findViewById(R.id.profile_image)
 
+        view.findViewById<android.widget.ImageButton>(R.id.back_button)?.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+
         loadUserData(view)
     }
 
