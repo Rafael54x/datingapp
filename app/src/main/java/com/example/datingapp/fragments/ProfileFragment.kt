@@ -151,7 +151,9 @@ class ProfileFragment : Fragment() {
                 profileGender.text = Gender.values().find { it.name == genderStr }?.displayName
 
                 val majorStr = data["major"] as? String
-                profileMajor.text = Jurusan.values().find { it.name == majorStr }?.displayName
+                profileMajor.text = majorStr?.let { 
+                    Jurusan.values().find { it.name == majorStr }?.displayName ?: majorStr
+                }
 
                 val prefs = data["preference"] as? Map<*, *>
                 prefs?.let {

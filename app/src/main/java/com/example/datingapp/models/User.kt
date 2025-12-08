@@ -16,7 +16,7 @@ data class User(
     val bio: String? = "",
     val interests: List<String> = listOf(), // Hobbies/interests tags
     val schoolyear: String? = "",
-    val major: Jurusan? = null,
+    val major: String? = null,
     val preference: Preferences = Preferences(),
     val lastSeen: Long = 0L, // Timestamp for last seen
     val isOnline: Boolean = false, // Online status

@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.datingapp.R
+import com.example.datingapp.models.Jurusan
 import com.example.datingapp.models.User
 import android.app.Dialog
 import android.graphics.drawable.ColorDrawable
@@ -112,7 +113,9 @@ class ProfileViewFragment : Fragment() {
         profileAge.text = user.age.toString()
         profileGender.text = user.gender?.displayName
         profileSchoolYear.text = user.schoolyear.toString()
-        profileMajor.text = user.major?.displayName
+        profileMajor.text = user.major?.let { 
+            Jurusan.values().find { it.name == user.major }?.displayName ?: user.major
+        }
     }
 
     // Tampilkan popup untuk scanning/verifikasi foto profile
