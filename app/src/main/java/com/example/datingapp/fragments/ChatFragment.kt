@@ -9,16 +9,19 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.datingapp.R
 import com.example.datingapp.adapters.ChatAdapter
 import com.example.datingapp.models.Message
+import com.example.datingapp.utils.FCMSender
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment() {
 
@@ -212,15 +215,31 @@ class ChatFragment : Fragment() {
 
         chatsRef.add(msg).addOnSuccessListener {
             Log.d(TAG, "Message sent successfully")
-            // Also update the last message in the match document
+            // Update the last message in the match document
             firestore.collection("matches").document(matchId).update(mapOf(
                 "lastMessage" to text,
                 "timestamp" to FieldValue.serverTimestamp()
             ))
+            
+            // Send notification to partner
+            val partnerId = matchId.split("_").firstOrNull { it != myId }
+            if (partnerId != null) {
+                sendMessageNotification(partnerId, text)
+            }
         }.addOnFailureListener { e ->
             Log.e(TAG, "Error sending message", e)
             Toast.makeText(context, "Failed to send message.", Toast.LENGTH_SHORT).show()
         }
+    }
+    
+    private fun sendMessageNotification(partnerId: String, messageText: String) {
+        firestore.collection("users").document(myId).get()
+            .addOnSuccessListener { myDoc ->
+                val myName = myDoc.getString("name") ?: "Someone"
+                Log.d(TAG, "Notification ready: $myName sent message to $partnerId")
+                // TODO: Implement backend API to send FCM notification
+                // For now, notifications are disabled (requires backend server)
+            }
     }
 
     private fun startChatListener() {

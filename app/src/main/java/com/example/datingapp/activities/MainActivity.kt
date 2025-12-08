@@ -1,25 +1,37 @@
 package com.example.datingapp.activities
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.datingapp.R
 import com.example.datingapp.fragments.HomeFragment
 import com.example.datingapp.fragments.MatchListFragment
 import com.example.datingapp.fragments.ProfileFragment
 import com.example.datingapp.utils.SharedPrefManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
 
-    // SharedPrefManager untuk mengelola data user yang login
     private lateinit var sharedPrefManager: SharedPrefManager
+    private val TAG = "MainActivity"
+    private val NOTIFICATION_PERMISSION_CODE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Inisialisasi SharedPrefManager
         sharedPrefManager = SharedPrefManager(this)
+        
+        requestNotificationPermission()
+        registerFCMToken()
 
         // Ambil referensi bottom navigation view dari layout
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
@@ -48,6 +60,42 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, HomeFragment())
                 .commit()
+        }
+    }
+    
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_CODE
+                )
+            }
+        }
+    }
+    
+    private fun registerFCMToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM token failed", task.exception)
+                return@addOnCompleteListener
+            }
+            
+            val token = task.result
+            Log.d(TAG, "FCM Token: $token")
+            
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            if (userId != null) {
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(userId)
+                    .update("fcmToken", token)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "FCM token saved")
+                    }
+            }
         }
     }
 }
