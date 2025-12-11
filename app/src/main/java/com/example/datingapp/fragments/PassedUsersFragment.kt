@@ -9,28 +9,28 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.datingapp.R
-import com.example.datingapp.adapters.MyLikesAdapter
-import com.example.datingapp.databinding.FragmentMyLikesBinding
+import com.example.datingapp.adapters.PassedUsersAdapter
+import com.example.datingapp.databinding.FragmentPassedUsersBinding
 import com.example.datingapp.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
-class MyLikesFragment : Fragment() {
+class PassedUsersFragment : Fragment() {
 
-    private var _binding: FragmentMyLikesBinding? = null
+    private var _binding: FragmentPassedUsersBinding? = null
     private val binding get() = _binding!!
     
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var myLikesAdapter: MyLikesAdapter
-    private val usersILiked = mutableListOf<User>()
-    private val TAG = "MyLikesFragment"
+    private lateinit var passedUsersAdapter: PassedUsersAdapter
+    private val passedUsers = mutableListOf<User>()
+    private val TAG = "PassedUsersFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMyLikesBinding.inflate(inflater, container, false)
+        _binding = FragmentPassedUsersBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -41,13 +41,13 @@ class MyLikesFragment : Fragment() {
         firestore = FirebaseFirestore.getInstance()
         
         setupRecyclerView()
-        loadUsersILiked()
+        loadPassedUsers()
         
 
     }
 
     private fun setupRecyclerView() {
-        myLikesAdapter = MyLikesAdapter(usersILiked, 
+        passedUsersAdapter = PassedUsersAdapter(passedUsers,
             onUserClick = { user ->
                 val profileView = ProfileViewFragment.newInstance(user.uid)
                 parentFragmentManager.beginTransaction()
@@ -55,18 +55,18 @@ class MyLikesFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             },
-            onUnlikeClick = { user ->
-                showUnlikeDialog(user)
+            onUnpassClick = { user ->
+                removeFromPassed(user)
             }
         )
         
-        binding.myLikesRecyclerView.apply {
+        binding.recyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = myLikesAdapter
+            adapter = passedUsersAdapter
         }
     }
 
-    private fun loadUsersILiked() {
+    private fun loadPassedUsers() {
         val myId = auth.currentUser?.uid ?: return
         if (_binding == null) return
         
@@ -76,19 +76,19 @@ class MyLikesFragment : Fragment() {
             .addOnSuccessListener { doc ->
                 if (!isAdded || _binding == null) return@addOnSuccessListener
                 
-                val likedUserIds = doc.get("liked") as? List<String> ?: emptyList()
+                val passedIds = doc.get("passed") as? List<String> ?: emptyList()
                 
-                if (likedUserIds.isEmpty()) {
+                if (passedIds.isEmpty()) {
                     binding.progressBar.visibility = View.GONE
                     binding.emptyState.visibility = View.VISIBLE
                     return@addOnSuccessListener
                 }
                 
-                loadUsersBatch(likedUserIds)
+                loadUsersBatch(passedIds)
             }
             .addOnFailureListener { e ->
                 if (!isAdded || _binding == null) return@addOnFailureListener
-                Log.e(TAG, "Error loading my likes", e)
+                Log.e(TAG, "Error loading passed users", e)
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, "Failed to load", Toast.LENGTH_SHORT).show()
             }
@@ -100,7 +100,7 @@ class MyLikesFragment : Fragment() {
             return
         }
         
-        usersILiked.clear()
+        passedUsers.clear()
         val batchSize = 10
         val batches = userIds.chunked(batchSize)
         var loadedBatches = 0
@@ -115,52 +115,41 @@ class MyLikesFragment : Fragment() {
                     for (doc in users) {
                         val user = doc.toObject(User::class.java)
                         if (user != null) {
-                            usersILiked.add(user)
+                            passedUsers.add(user)
                         }
                     }
                     
                     loadedBatches++
                     if (loadedBatches == batches.size) {
                         binding.progressBar.visibility = View.GONE
-                        if (usersILiked.isEmpty()) {
+                        if (passedUsers.isEmpty()) {
                             binding.emptyState.visibility = View.VISIBLE
                         } else {
                             binding.emptyState.visibility = View.GONE
-                            myLikesAdapter.notifyDataSetChanged()
+                            passedUsersAdapter.notifyDataSetChanged()
                         }
                     }
                 }
         }
     }
-    
-    private fun showUnlikeDialog(user: User) {
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Unlike ${user.name}?")
-            .setMessage("This will remove them from your liked list")
-            .setPositiveButton("Unlike") { _, _ ->
-                unlikeUser(user)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-    
-    private fun unlikeUser(user: User) {
+
+    private fun removeFromPassed(user: User) {
         val myId = auth.currentUser?.uid ?: return
-        
+
         firestore.collection("swipes").document(myId)
-            .update("liked", FieldValue.arrayRemove(user.uid))
+            .update("passed", FieldValue.arrayRemove(user.uid))
             .addOnSuccessListener {
-                usersILiked.remove(user)
-                myLikesAdapter.notifyDataSetChanged()
+                passedUsers.remove(user)
+                passedUsersAdapter.notifyDataSetChanged()
                 
-                if (usersILiked.isEmpty()) {
+                if (passedUsers.isEmpty()) {
                     binding.emptyState.visibility = View.VISIBLE
                 }
                 
-                Toast.makeText(context, "Unliked ${user.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Removed from passed list", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
-                Toast.makeText(context, "Failed to unlike", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to remove user", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -169,7 +158,10 @@ class MyLikesFragment : Fragment() {
         _binding = null
     }
 
+
+
     companion object {
-        fun newInstance() = MyLikesFragment()
+        @JvmStatic
+        fun newInstance() = PassedUsersFragment()
     }
 }

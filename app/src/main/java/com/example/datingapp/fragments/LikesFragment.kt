@@ -41,6 +41,8 @@ class LikesFragment : Fragment() {
         
         setupRecyclerView()
         loadUsersWhoLikedMe()
+        
+
     }
 
     private fun setupRecyclerView() {

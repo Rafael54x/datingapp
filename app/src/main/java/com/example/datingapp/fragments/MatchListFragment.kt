@@ -26,7 +26,16 @@ class MatchListFragment : Fragment() {
     private var matchAdapter: MatchAdapter? = null
     private val matchesWithUsers = mutableListOf<Pair<Match, User>>()
     private val allMatchesWithUsers = mutableListOf<Pair<Match, User>>()
+    private val activeMatches = mutableListOf<Pair<Match, User>>()
+    private val inactiveMatches = mutableListOf<Pair<Match, User>>()
+    private val blockedMatches = mutableListOf<Pair<Match, User>>()
+    private val favoriteMatches = mutableListOf<Pair<Match, User>>()
+    private var currentTab = 0 // 0 = Active, 1 = Inactive, 2 = Blocked
+    private var showingFavorites = false
     private val TAG = "MatchListFragment"
+    
+    private var matchesListener: com.google.firebase.firestore.ListenerRegistration? = null
+    private var favoritesListener: com.google.firebase.firestore.ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -47,8 +56,46 @@ class MatchListFragment : Fragment() {
         }
 
         setupRecyclerView()
+        setupTabs()
         setupSearch()
+        setupFavorites()
+        setupSwipeRefresh()
         loadMatches()
+    }
+    
+    private fun setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
+                currentTab = tab?.position ?: 0
+                filterMatchesByTab()
+            }
+            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+        })
+    }
+    
+    private fun setupFavorites() {
+        binding.favoriteIcon.setOnClickListener {
+            showingFavorites = !showingFavorites
+            updateFavoriteIcon()
+            filterMatchesByTab()
+        }
+    }
+    
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshMatches.setOnRefreshListener {
+            loadMatches()
+            binding.swipeRefreshMatches.isRefreshing = false
+        }
+    }
+    
+    private fun updateFavoriteIcon() {
+        val iconRes = if (showingFavorites) {
+            android.R.drawable.btn_star_big_on
+        } else {
+            android.R.drawable.btn_star_big_off
+        }
+        binding.favoriteIcon.setImageResource(iconRes)
     }
     
     private fun setupSearch() {
@@ -61,12 +108,39 @@ class MatchListFragment : Fragment() {
         })
     }
     
+    private fun filterMatchesByTab() {
+        val sourceList = if (showingFavorites) {
+            favoriteMatches
+        } else {
+            when (currentTab) {
+                0 -> activeMatches
+                1 -> inactiveMatches
+                2 -> blockedMatches
+                else -> activeMatches
+            }
+        }
+        matchesWithUsers.clear()
+        matchesWithUsers.addAll(sourceList)
+        filterMatches(binding.searchMatches.text.toString())
+    }
+    
     private fun filterMatches(query: String) {
+        val sourceList = if (showingFavorites) {
+            favoriteMatches
+        } else {
+            when (currentTab) {
+                0 -> activeMatches
+                1 -> inactiveMatches
+                2 -> blockedMatches
+                else -> activeMatches
+            }
+        }
+        
         if (query.isEmpty()) {
             matchesWithUsers.clear()
-            matchesWithUsers.addAll(allMatchesWithUsers)
+            matchesWithUsers.addAll(sourceList)
         } else {
-            val filtered = allMatchesWithUsers.filter { (_, user) ->
+            val filtered = sourceList.filter { (_, user) ->
                 user.name?.contains(query, ignoreCase = true) == true
             }
             matchesWithUsers.clear()
@@ -74,10 +148,10 @@ class MatchListFragment : Fragment() {
         }
         matchAdapter?.notifyDataSetChanged()
         
-        if (matchesWithUsers.isEmpty() && query.isNotEmpty()) {
+        if (matchesWithUsers.isEmpty()) {
             binding.noMatchesText.visibility = View.VISIBLE
             binding.matchesRecyclerView.visibility = View.GONE
-        } else if (matchesWithUsers.isNotEmpty()) {
+        } else {
             binding.noMatchesText.visibility = View.GONE
             binding.matchesRecyclerView.visibility = View.VISIBLE
         }
@@ -86,16 +160,23 @@ class MatchListFragment : Fragment() {
     private fun setupRecyclerView() {
         matchAdapter = MatchAdapter(matchesWithUsers,
             onItemClicked = { match, partner ->
-                checkIfBlockedBidirectional(partner.uid) { isBlocked, blockedByPartner ->
-                    when {
-                        isBlocked -> Toast.makeText(requireContext(), "You have blocked this user", Toast.LENGTH_SHORT).show()
-                        blockedByPartner -> Toast.makeText(requireContext(), "You cannot chat with this user", Toast.LENGTH_SHORT).show()
-                        else -> {
-                            val chatFragment = ChatFragment.newInstance(match.matchId)
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.fragment_container, chatFragment)
-                                .addToBackStack(null)
-                                .commit()
+                checkMutualLike(partner.uid) { mutualLike ->
+                    if (!mutualLike) {
+                        Toast.makeText(requireContext(), "Match no longer valid", Toast.LENGTH_SHORT).show()
+                        return@checkMutualLike
+                    }
+                    
+                    checkIfBlockedBidirectional(partner.uid) { isBlocked, blockedByPartner ->
+                        when {
+                            isBlocked -> Toast.makeText(requireContext(), "You have blocked this user", Toast.LENGTH_SHORT).show()
+                            blockedByPartner -> Toast.makeText(requireContext(), "You cannot chat with this user", Toast.LENGTH_SHORT).show()
+                            else -> {
+                                val chatFragment = ChatFragment.newInstance(match.matchId)
+                                parentFragmentManager.beginTransaction()
+                                    .replace(R.id.fragment_container, chatFragment)
+                                    .addToBackStack(null)
+                                    .commit()
+                            }
                         }
                     }
                 }
@@ -109,6 +190,15 @@ class MatchListFragment : Fragment() {
             },
             onBlockClicked = { match, partner ->
                 showBlockDialog(partner)
+            },
+            onFavoriteClicked = { match, partner ->
+                toggleFavorite(match, partner)
+            },
+            isFavorite = { match ->
+                favoriteMatches.any { it.first.matchId == match.matchId }
+            },
+            isBlocked = { partner ->
+                blockedMatches.any { it.second.uid == partner.uid }
             }
         )
         binding.matchesRecyclerView.apply {
@@ -120,7 +210,8 @@ class MatchListFragment : Fragment() {
     private fun loadMatches() {
         val myId = auth.currentUser?.uid ?: return
 
-        firestore.collection("matches")
+        matchesListener?.remove()
+        matchesListener = firestore.collection("matches")
             .whereArrayContains("users", myId)
             .addSnapshotListener { snapshots, error ->
                 if (!isAdded || _binding == null) return@addSnapshotListener
@@ -142,6 +233,13 @@ class MatchListFragment : Fragment() {
 
                 matchesWithUsers.clear()
                 allMatchesWithUsers.clear()
+                activeMatches.clear()
+                inactiveMatches.clear()
+                blockedMatches.clear()
+                favoriteMatches.clear()
+
+                var processedCount = 0
+                val totalMatches = snapshots.documents.size
 
                 for (doc in snapshots.documents) {
                     val users = doc.get("users") as? List<String> ?: continue
@@ -165,8 +263,34 @@ class MatchListFragment : Fragment() {
                             
                             val partner = userDoc.toObject(User::class.java)
                             if (partner != null) {
-                                allMatchesWithUsers.add(Pair(match, partner))
-                                filterMatches(binding.searchMatches.text.toString())
+                                checkIfBlocked(partnerId) { isBlocked ->
+                                    val matchPair = Pair(match, partner)
+                                    allMatchesWithUsers.add(matchPair)
+                                    
+                                    if (isBlocked) {
+                                        blockedMatches.add(matchPair)
+                                    } else {
+                                        checkMutualLike(partnerId) { mutualLike ->
+                                            if (mutualLike) {
+                                                activeMatches.add(matchPair)
+                                            } else {
+                                                inactiveMatches.add(matchPair)
+                                            }
+                                            
+                                            processedCount++
+                                            if (processedCount == totalMatches) {
+                                                loadFavorites()
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (isBlocked) {
+                                        processedCount++
+                                        if (processedCount == totalMatches) {
+                                            loadFavorites()
+                                        }
+                                    }
+                                }
                             }
                         }
                 }
@@ -208,6 +332,32 @@ class MatchListFragment : Fragment() {
             }
     }
 
+    private fun checkMutualLike(userId: String, callback: (Boolean) -> Unit) {
+        val myId = auth.currentUser?.uid ?: return
+        
+        firestore.collection("swipes").document(myId).get()
+            .addOnSuccessListener { myDoc ->
+                val myLiked = myDoc.get("liked") as? List<String> ?: emptyList()
+                
+                if (!myLiked.contains(userId)) {
+                    callback(false)
+                    return@addOnSuccessListener
+                }
+                
+                firestore.collection("swipes").document(userId).get()
+                    .addOnSuccessListener { theirDoc ->
+                        val theirLiked = theirDoc.get("liked") as? List<String> ?: emptyList()
+                        callback(theirLiked.contains(myId))
+                    }
+                    .addOnFailureListener {
+                        callback(false)
+                    }
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+
     private fun checkIfBlockedBidirectional(userId: String, callback: (Boolean, Boolean) -> Unit) {
         val myId = auth.currentUser?.uid ?: return
         
@@ -237,6 +387,7 @@ class MatchListFragment : Fragment() {
                 com.google.firebase.firestore.SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "User blocked", Toast.LENGTH_SHORT).show()
+                loadMatches()
             }
     }
 
@@ -245,11 +396,68 @@ class MatchListFragment : Fragment() {
             .update("blockedUsers", com.google.firebase.firestore.FieldValue.arrayRemove(userId))
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "User unblocked", Toast.LENGTH_SHORT).show()
+                loadMatches()
+            }
+    }
+    
+    private fun toggleFavorite(match: Match, partner: User) {
+        val myId = auth.currentUser?.uid ?: return
+        val isFavorite = favoriteMatches.any { it.first.matchId == match.matchId }
+        
+        if (isFavorite) {
+            firestore.collection("favorites").document(myId)
+                .update("favoriteUsers", com.google.firebase.firestore.FieldValue.arrayRemove(partner.uid))
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Removed from favorites", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to remove from favorites", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            firestore.collection("favorites").document(myId)
+                .set(mapOf("favoriteUsers" to com.google.firebase.firestore.FieldValue.arrayUnion(partner.uid)),
+                    com.google.firebase.firestore.SetOptions.merge())
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to add to favorites", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+    
+    private fun loadFavorites() {
+        val myId = auth.currentUser?.uid ?: return
+        
+        favoritesListener?.remove()
+        favoritesListener = firestore.collection("favorites").document(myId)
+            .addSnapshotListener { doc, error ->
+                if (!isAdded || _binding == null) return@addSnapshotListener
+                
+                if (error != null) {
+                    Log.e(TAG, "Favorites listen failed.", error)
+                    return@addSnapshotListener
+                }
+                
+                val favoriteUserIds = doc?.get("favoriteUsers") as? List<String> ?: emptyList()
+                favoriteMatches.clear()
+                
+                for (matchPair in allMatchesWithUsers) {
+                    val partnerId = matchPair.first.users.firstOrNull { it != myId }
+                    if (favoriteUserIds.contains(partnerId)) {
+                        favoriteMatches.add(matchPair)
+                    }
+                }
+                
+                filterMatchesByTab()
+                matchAdapter?.notifyDataSetChanged()
             }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        matchesListener?.remove()
+        favoritesListener?.remove()
         _binding = null
     }
 

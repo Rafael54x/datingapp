@@ -30,6 +30,7 @@
         <activity android:name=".activities.RegisterActivity"/>
         <activity android:name=".activities.MainActivity"/>
         <activity android:name=".activities.ProfileEditActivity"/>
+        <activity android:name=".activities.TermsActivity"/>
         
         <service
             android:name=".services.MyFirebaseMessagingService"

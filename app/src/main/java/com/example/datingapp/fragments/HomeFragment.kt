@@ -36,9 +36,7 @@ class HomeFragment : Fragment(), CardStackListener {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var myId: String
 
-    // Undo feature
-    private var lastSwipedUser: User? = null
-    private var lastSwipeDirection: Direction? = null
+
     
     // Filter preferences
     private var filterGender: Gender? = null
@@ -109,15 +107,9 @@ class HomeFragment : Fragment(), CardStackListener {
             }
         }
         
-        // Undo button
-        view.findViewById<ImageButton>(R.id.undo_button)?.setOnClickListener {
-            undoLastSwipe()
-        }
+
         
-        // Filter button
-        view.findViewById<ImageButton>(R.id.filter_button)?.setOnClickListener {
-            showFilterDialog()
-        }
+
     }
     
     private fun setupSwipeRefresh(view: View) {
@@ -130,10 +122,14 @@ class HomeFragment : Fragment(), CardStackListener {
     private fun loadUsersFromFirestore() {
         swipeRefreshLayout.isRefreshing = true
         
-        // Get current user's gender first
+        // Get current user's data and preferences
         firestore.collection("users").document(myId).get()
             .addOnSuccessListener { myDoc ->
                 val myGender = myDoc.getString("gender")
+                val preferences = myDoc.get("preference") as? Map<*, *>
+                val preferredGender = preferences?.get("gender") as? String
+                val preferredYears = preferences?.get("yearPreferences") as? String
+                val preferredMajors = preferences?.get("majorPreferences") as? List<*>
                 
                 firestore.collection("swipes").document(myId).get()
                     .addOnSuccessListener { swipeDoc ->
@@ -144,20 +140,39 @@ class HomeFragment : Fragment(), CardStackListener {
                         firestore.collection("users").get()
                             .addOnSuccessListener { result ->
                                 allUsers = result.toObjects(User::class.java).toMutableList()
-                                var potentialMatches = allUsers.filter { user ->
-                                    // Filter: not me, not already swiped, opposite gender only
+                                val potentialMatches = allUsers.filter { user ->
                                     val isNotMe = user.uid != myId
                                     val notSwiped = !alreadySwiped.contains(user.uid)
-                                    val oppositeGender = when(myGender) {
-                                        "M" -> user.gender?.name == "F"
-                                        "F" -> user.gender?.name == "M"
-                                        else -> true
+                                    
+                                    // Gender preference filter
+                                    val genderMatch = if (preferredGender != null) {
+                                        user.gender?.name == preferredGender
+                                    } else {
+                                        when(myGender) {
+                                            "M" -> user.gender?.name == "F"
+                                            "F" -> user.gender?.name == "M"
+                                            else -> true
+                                        }
                                     }
-                                    isNotMe && notSwiped && oppositeGender
+                                    
+                                    // Year preference filter
+                                    val yearMatch = if (preferredYears == "All" || preferredYears == null) {
+                                        true
+                                    } else {
+                                        user.schoolyear == preferredYears
+                                    }
+                                    
+                                    // Major preference filter
+                                    val majorMatch = if (preferredMajors.isNullOrEmpty()) {
+                                        true
+                                    } else {
+                                        val userMajorEnum = user.major
+                                        val userMajorDisplay = Jurusan.values().find { it.name == userMajorEnum }?.displayName ?: userMajorEnum
+                                        preferredMajors.contains(userMajorDisplay) || preferredMajors.contains(userMajorEnum)
+                                    }
+                                    
+                                    isNotMe && notSwiped && genderMatch && yearMatch && majorMatch
                                 }
-                                
-                                // Apply additional filters
-                                potentialMatches = applyFilters(potentialMatches)
                                 
                                 users.clear()
                                 users.addAll(potentialMatches)
@@ -196,8 +211,6 @@ class HomeFragment : Fragment(), CardStackListener {
         if (position >= users.size) return
 
         val swipedUser = users[position]
-        lastSwipedUser = swipedUser
-        lastSwipeDirection = direction
         val otherId = swipedUser.uid
 
         if (direction == Direction.Right) {
@@ -207,24 +220,7 @@ class HomeFragment : Fragment(), CardStackListener {
         }
     }
     
-    private fun undoLastSwipe() {
-        if (lastSwipedUser == null) {
-            Toast.makeText(context, "No swipe to undo", Toast.LENGTH_SHORT).show()
-            return
-        }
-        
-        val userId = lastSwipedUser!!.uid
-        val field = if (lastSwipeDirection == Direction.Right) "liked" else "passed"
-        
-        firestore.collection("swipes").document(myId)
-            .update(field, FieldValue.arrayRemove(userId))
-            .addOnSuccessListener {
-                layoutManager.setTopPosition(layoutManager.topPosition - 1)
-                Toast.makeText(context, "Swipe undone", Toast.LENGTH_SHORT).show()
-                lastSwipedUser = null
-                lastSwipeDirection = null
-            }
-    }
+
     
     private fun showFilterDialog() {
         val dialog = Dialog(requireContext())

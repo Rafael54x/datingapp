@@ -18,7 +18,7 @@
             android:layout_margin="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FF6B9D">
+            app:cardBackgroundColor="#FF9800">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -30,14 +30,14 @@
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:src="@drawable/ic_like"
+                    android:src="@drawable/ic_dislike"
                     app:tint="@android:color/white"
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Manage your likes"
+                    android:text="Give them another chance"
                     android:textSize="14sp"
 
                     android:textColor="#F5F5F5"/>
@@ -47,7 +47,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/my_likes_recycler_view"
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -75,15 +75,15 @@
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:src="@drawable/ic_like"
+            android:src="@drawable/ic_dislike"
             android:alpha="0.3"
-            app:tint="#FF6B9D"
+            app:tint="#FF9800"
             android:layout_marginBottom="16dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No likes yet"
+            android:text="No passed users"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
@@ -92,7 +92,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start swiping right!"
+            android:text="Users you pass will appear here"
             android:textSize="14sp"
 
             android:textColor="@color/text_secondary"/>

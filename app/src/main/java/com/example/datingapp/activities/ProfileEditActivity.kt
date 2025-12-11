@@ -148,6 +148,12 @@ class ProfileEditActivity : AppCompatActivity() {
             return
         }
 
+        val age = binding.editAge.text.toString().trim()
+        if (age.toIntOrNull() == null || age.toInt() < 17) {
+            Toast.makeText(this, "Minimum age is 17", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         // Show loading
         binding.progressBar.visibility = android.view.View.VISIBLE
         binding.save.isEnabled = false

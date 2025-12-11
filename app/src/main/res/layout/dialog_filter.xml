@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="Filter Preferences"
         android:textSize="24sp"
-        android:fontFamily="@font/poppins_bold"
+        android:textStyle="bold"
         android:textColor="#212121"
         android:layout_marginBottom="24dp"/>
 
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:text="Major"
         android:textSize="14sp"
-        android:fontFamily="@font/poppins_semibold"
+        android:textStyle="bold"
         android:textColor="#424242"
         android:layout_marginBottom="8dp"/>
 
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:text="Year"
         android:textSize="14sp"
-        android:fontFamily="@font/poppins_semibold"
+        android:textStyle="bold"
         android:textColor="#424242"
         android:layout_marginBottom="8dp"/>
 

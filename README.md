@@ -23,9 +23,17 @@ UMNDatingApp is a modern, intuitive dating application specifically designed for
 - 💬 **Real-time Messaging** - Firebase-powered instant chat with matched users
 - 👤 **Profile Management** - Comprehensive profile with photo verification badge
 - 🔍 **Search & Filter** - Real-time search in match list by partner name
-- 🔐 **Secure Authentication** - Firebase Auth with password change functionality
-- 🚫 **Block System** - Block unwanted users and prevent chat access
+- ⭐ **Favorites System** - Add/remove favorites with persistent storage and filtering
+- 🔐 **Secure Authentication** - Firebase Auth with email verification and password reset
+- 📧 **Email Verification** - Required @student.umn.ac.id domain verification
+- 🔑 **Forgot Password** - Secure password reset with email and name verification
+- 🚫 **Block/Unblock System** - Block unwanted users with dynamic UI updates
 - ❤️ **Likes Management** - View who liked you and manage your likes
+- 👎 **Passed Users Management** - View and manage users you've passed on
+- 📚 **Interactive Tutorial** - First-time user onboarding guide
+- 🎛️ **Settings & Preferences** - Dark mode toggle and app customization
+- 📖 **Help & Guide System** - Built-in help and user guide
+- 📋 **Terms & Conditions** - Legal compliance and user agreements
 - 🎨 **Modern UI/UX** - Material Design 3 with smooth animations
 - 🎓 **University Integration** - Major and year-based matching preferences
 
@@ -185,29 +193,73 @@ app/src/main/java/com/example/datingapp/
 - **Account Deletion:** Complete account removal with data cleanup
 - **Preference Settings:** Gender, year range, and major preferences
 
+### ⭐ Favorites System
+- **Add to Favorites:** Long-press matches to add/remove from favorites
+- **Favorites Filter:** Toggle star icon to view only favorite matches
+- **Persistent Storage:** Favorites saved to Firestore and persist across sessions
+- **Real-time Updates:** Instant sync across all devices
+- **Performance Optimized:** Fast lookup with efficient data structures
+
 ### ❤️ Likes System
 - **See Who Liked You:** View users who swiped right on your profile
 - **My Likes:** Track users you've liked
 - **Match Creation:** Automatic match when both users like each other
 - **Real-time Updates:** Instant notification of new likes
 
+### 👎 Passed Users Management
+- **View Passed Users:** See all users you've swiped left on
+- **Unpass Feature:** Remove users from passed list to see them again
+- **Grid Layout:** Easy browsing of passed users with photos
+- **Profile Access:** Tap to view full profile of passed users
+- **Batch Loading:** Efficient loading of large passed user lists
+
 ### 🔍 Match List
 - **Real-time Search:** Filter matches by partner name as you type
 - **Match Management:** View all your matches in one place
+- **Tab Organization:** Active, Inactive, and Blocked match categories
+- **Favorites Integration:** Filter to show only favorite matches
 - **Last Message Preview:** See the most recent message
 - **Direct Chat Access:** Tap to open conversation
 
-### 🚫 Block System
+### 🚫 Block/Unblock System
+- **Dynamic UI:** Block/Unblock text changes based on current status
 - **User Blocking:** Block unwanted users from your profile view
 - **Chat Prevention:** Blocked users cannot message you
 - **Feed Filtering:** Blocked users won't appear in swipe cards
+- **Easy Management:** Long-press matches for block/unblock options
 - **Mutual Protection:** Works both ways for safety
 
-### 🔐 Authentication
+### 🔐 Authentication & Security
+- **Email Verification:** Required verification for @student.umn.ac.id emails only
+- **Domain Restriction:** Only UMN student emails allowed for registration
+- **Forgot Password:** Secure reset requiring both email and full name verification
 - **Firebase Auth:** Secure email/password authentication
 - **Session Management:** Persistent login with auto-redirect
 - **Password Security:** Re-authentication required for password changes
-- **Account Recovery:** Secure password reset flow
+
+### 📚 Tutorial System
+- **First-Time Onboarding:** Interactive tutorial for new users
+- **Step-by-Step Guide:** Covers all main app features
+- **Skip Option:** Users can skip tutorial at any time
+- **One-Time Display:** Tutorial only shows once per user
+- **Feature Highlights:** Guides through swiping, matching, profile, and help
+
+### 🎛️ Settings & Preferences
+- **Dark Mode Toggle:** Switch between light and dark themes
+- **Persistent Settings:** Settings saved across app sessions
+- **Terms Access:** Quick access to Terms & Conditions
+- **Theme Switching:** Real-time theme changes without restart
+
+### 📖 Help & Guide System
+- **Built-in Guide:** Comprehensive help documentation
+- **Easy Access:** Guide button available from main navigation
+- **User Support:** Step-by-step instructions for app features
+
+### 📋 Terms & Conditions
+- **Legal Compliance:** Complete terms and conditions
+- **Registration Requirement:** Must agree to terms during signup
+- **Easy Access:** Available from settings and registration
+- **Dedicated Activity:** Full-screen terms viewing
 
 ---
 
@@ -272,16 +324,24 @@ git push origin feature/your-feature-name
 
 ### ✅ Completed Features
 - [x] Firebase Authentication (Login/Register)
+- [x] Email Verification with @student.umn.ac.id Domain Restriction
+- [x] Forgot Password with Email & Name Verification
 - [x] Cloud Firestore Integration
 - [x] Profile Creation and Management
 - [x] Profile Photo Verification Badge
 - [x] Card Stack Matching Interface
 - [x] Real-time Chat System with Firestore
-- [x] Match List with Real-time Search
+- [x] Match List with Real-time Search and Tabs
+- [x] Favorites System with Persistent Storage
 - [x] Likes Management (See Likes & My Likes)
-- [x] Block System
+- [x] Block/Unblock System with Dynamic UI
 - [x] Password Change with Re-authentication
 - [x] Account Deletion with Data Cleanup
+- [x] Interactive Tutorial for First-Time Users
+- [x] Passed Users Management with Unpass Feature
+- [x] Settings with Dark Mode Toggle
+- [x] Help & Guide System
+- [x] Terms & Conditions Integration
 - [x] Onboarding Flow
 - [x] Splash Screen
 - [x] Bottom Navigation
@@ -297,10 +357,13 @@ git push origin feature/your-feature-name
 ### 📅 Future Enhancements
 - [ ] Video Chat Integration
 - [ ] Social Media Integration
-- [ ] Email Verification
 - [ ] Dating Event Organization
 - [ ] Premium Features
 - [ ] Location-based Matching
+- [ ] Advanced Tutorial with Highlights
+- [ ] Multiple Photo Support
+- [ ] Enhanced Guide with Interactive Elements
+- [ ] Advanced Settings & Customization
 
 ---
 
@@ -356,6 +419,12 @@ swipes/
 blocks/
   {userId}/
     - blockedUsers: [userIds]
+
+favorites/
+  {userId}/
+    - favoriteUsers: [userIds]
+
+# Note: Passed users are stored in swipes collection under 'passed' field
 ```
 
 ### Security Rules
