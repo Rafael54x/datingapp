@@ -348,23 +348,6 @@ git push origin feature/your-feature-name
 - [x] Pull to Refresh
 - [x] Shimmer Loading Effects
 
-### 🚧 In Progress
-- [ ] Photo Upload to Firebase Storage
-- [ ] Push Notifications
-- [ ] Advanced Matching Algorithm
-- [ ] Photo Upload from Camera
-
-### 📅 Future Enhancements
-- [ ] Video Chat Integration
-- [ ] Social Media Integration
-- [ ] Dating Event Organization
-- [ ] Premium Features
-- [ ] Location-based Matching
-- [ ] Advanced Tutorial with Highlights
-- [ ] Multiple Photo Support
-- [ ] Enhanced Guide with Interactive Elements
-- [ ] Advanced Settings & Customization
-
 ---
 
 ## 🤝 Contributing
