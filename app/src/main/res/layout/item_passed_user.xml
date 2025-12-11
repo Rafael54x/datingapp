@@ -19,15 +19,16 @@
             android:src="@drawable/ic_profile"/>
 
         <ImageButton
-            android:id="@+id/unlike_button"
+            android:id="@+id/unpass_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="top|end"
             android:layout_margin="8dp"
-            android:src="@drawable/ic_dislike"
+            android:src="@drawable/ic_undo"
             android:background="@drawable/circle_button_background"
             android:scaleType="centerInside"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            app:tint="#FF9800"/>
 
         <TextView
             android:id="@+id/user_name"

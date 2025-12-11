@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:background="?attr/colorPrimary">
+
+    <ImageView
+        android:id="@+id/nav_back_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_back"
+        app:tint="?attr/colorOnPrimary"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
+        android:layout_marginEnd="12dp"
+        android:visibility="visible"/>
 
     <ImageView
         android:src="@drawable/logomap"
@@ -15,10 +27,30 @@
 
     <TextView
         android:text="UMNDatingApp"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
+        android:layout_weight="1"
+        android:textColor="?attr/colorOnPrimary"
         android:textSize="18sp"
         android:textStyle="bold"/>
+
+    <ImageView
+        android:id="@+id/guide_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@android:drawable/ic_menu_help"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
+        android:layout_marginEnd="8dp"
+        app:tint="?attr/colorOnPrimary"/>
+
+    <ImageView
+        android:id="@+id/settings_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@android:drawable/ic_menu_preferences"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
+        app:tint="?attr/colorOnPrimary"/>
 
 </LinearLayout>

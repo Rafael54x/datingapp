@@ -5,5 +5,13 @@
     <color name="dark_gray">#FF888888</color>
     <color name="light_pink">#FFF5F7</color>
     <color name="primary">#db636f</color>
-    <color name="pink">#E91E63</color>
+    <color name="pink">#db636f</color>
+    <color name="background">#F8F9FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#666666</color>
+    <color name="colorOutlineVariant">#E0E0E0</color>
+    <color name="colorSurfaceVariant">#F5F5F5</color>
+    <color name="back_button_tint">#424242</color>
 </resources>

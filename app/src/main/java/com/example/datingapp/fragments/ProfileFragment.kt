@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.datingapp.R
 import com.example.datingapp.activities.LoginActivity
+import com.example.datingapp.activities.MainActivity
 import com.example.datingapp.activities.ProfileEditActivity
 import com.example.datingapp.models.Gender
 import com.example.datingapp.models.Jurusan
@@ -76,6 +77,7 @@ class ProfileFragment : Fragment() {
                 .replace(R.id.fragment_container, LikesFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
+            (activity as? MainActivity)?.showBackButton(true)
         }
         
         // Setup tombol My Likes
@@ -84,6 +86,16 @@ class ProfileFragment : Fragment() {
                 .replace(R.id.fragment_container, MyLikesFragment.newInstance())
                 .addToBackStack(null)
                 .commit()
+            (activity as? MainActivity)?.showBackButton(true)
+        }
+        
+        // Setup tombol Who You Passed
+        view.findViewById<Button>(R.id.btn_who_passed).setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, PassedUsersFragment.newInstance())
+                .addToBackStack(null)
+                .commit()
+            (activity as? MainActivity)?.showBackButton(true)
         }
         
         // Setup tombol Delete Account
@@ -134,11 +146,13 @@ class ProfileFragment : Fragment() {
 
                 val data = doc.data ?: return@addOnSuccessListener
 
-                Glide.with(this)
-                    .load(data["photoUrl"] as? String)
-                    .placeholder(R.drawable.ic_profile_placeholder)
-                    .error(R.drawable.ic_profile_placeholder)
-                    .into(profileImage)
+                if (isAdded && context != null) {
+                    Glide.with(this)
+                        .load(data["photoUrl"] as? String)
+                        .placeholder(R.drawable.ic_profile_placeholder)
+                        .error(R.drawable.ic_profile_placeholder)
+                        .into(profileImage)
+                }
 
                 profileUsername.text = data["username"] as? String
                 profileBio.text = (data["bio"] as? String) ?: "No bio provided."

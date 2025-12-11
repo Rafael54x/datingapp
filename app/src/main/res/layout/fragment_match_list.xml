@@ -5,28 +5,73 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA"
+    android:background="@color/background"
     tools:context=".fragments.MatchListFragment">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/pink"
+        app:tabSelectedTextColor="@color/pink"
+        app:tabTextColor="@color/text_secondary">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Active" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inactive" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Blocked" />
+
+    </com.google.android.material.tabs.TabLayout>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
         app:cardCornerRadius="24dp"
         app:cardElevation="4dp">
 
-        <EditText
-            android:id="@+id/search_matches"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Search matches..."
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@android:color/transparent"
-            android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="12dp"
-            android:fontFamily="@font/poppins_regular"
-            android:textSize="14sp"/>
+            android:layout_height="48dp">
+
+            <EditText
+                android:id="@+id/search_matches"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Search matches..."
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:background="@android:color/transparent"
+                android:drawableStart="@android:drawable/ic_menu_search"
+                android:drawablePadding="12dp"
+                android:textSize="14sp"/>
+
+            <ImageView
+                android:id="@+id/favorite_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="12dp"
+                android:src="@android:drawable/btn_star_big_off"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"/>
+
+        </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
 
@@ -69,8 +114,8 @@
             android:layout_height="wrap_content"
             android:text="No matches yet"
             android:textSize="20sp"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#424242"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -78,8 +123,7 @@
             android:layout_height="wrap_content"
             android:text="Start swiping to find your match!"
             android:textSize="14sp"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="#757575"/>
+            android:textColor="@color/text_secondary"/>
 
             </LinearLayout>
 

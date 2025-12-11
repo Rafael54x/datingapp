@@ -6,10 +6,14 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.datingapp.R
+import com.example.datingapp.fragments.TermsConditionsFragment
 import com.example.datingapp.models.Gender
 import com.example.datingapp.models.Jurusan
 import com.google.firebase.auth.FirebaseAuth
@@ -35,9 +39,21 @@ class RegisterActivity : AppCompatActivity() {
         val edtGender = findViewById<AutoCompleteTextView>(R.id.gender)
         val edtSchoolYear = findViewById<AutoCompleteTextView>(R.id.schoolyear)
         val edtMajor = findViewById<AutoCompleteTextView>(R.id.major)
+        val termsCheckbox = findViewById<CheckBox>(R.id.terms_checkbox)
+        val termsLink = findViewById<TextView>(R.id.terms_link)
         val btnSignUp = findViewById<Button>(R.id.btnSignUp)
+        val backButton = findViewById<ImageView>(R.id.back_button)
 
         setupDropdowns(edtGender, edtSchoolYear, edtMajor)
+        
+        backButton.setOnClickListener {
+            finish()
+        }
+        
+        termsLink.setOnClickListener {
+            val intent = Intent(this, TermsActivity::class.java)
+            startActivity(intent)
+        }
 
         btnSignUp.setOnClickListener {
             val username = edtUsername.text.toString().trim()
@@ -54,9 +70,24 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            
+            if (!termsCheckbox.isChecked) {
+                Toast.makeText(this, "Please agree to the Terms and Conditions", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             if (password.length < 6) {
                 Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (age.toIntOrNull() == null || age.toInt() < 17) {
+                Toast.makeText(this, "Minimum age is 17", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (!email.endsWith("@student.umn.ac.id")) {
+                Toast.makeText(this, "Only @student.umn.ac.id emails are allowed", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -95,9 +126,17 @@ class RegisterActivity : AppCompatActivity() {
                         .set(userDoc)
                         .addOnSuccessListener {
                             Log.d("RegisterActivity", "Firestore document created successfully")
-                            Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this, MainActivity::class.java))
-                            finishAffinity()
+                            user.sendEmailVerification()
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Account created! Please verify your email before logging in.", Toast.LENGTH_LONG).show()
+                                    auth.signOut()
+                                    finish()
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(this, "Account created but failed to send verification email", Toast.LENGTH_SHORT).show()
+                                    auth.signOut()
+                                    finish()
+                                }
                         }
                         .addOnFailureListener { e ->
                             Log.e("RegisterActivity", "Firestore error: ${e.message}", e)

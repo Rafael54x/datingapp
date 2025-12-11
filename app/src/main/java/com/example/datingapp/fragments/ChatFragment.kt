@@ -28,9 +28,18 @@ class ChatFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatAdapter: ChatAdapter
     private val messages = mutableListOf<Message>()
+    private lateinit var pinnedRecyclerView: RecyclerView
+    private lateinit var pinnedAdapter: ChatAdapter
+    private val pinnedMessages = mutableListOf<Message>()
+    private lateinit var pinnedContainer: View
 
     private lateinit var inputEditText: EditText
     private lateinit var sendButton: com.google.android.material.floatingactionbutton.FloatingActionButton
+    private var replyingTo: Message? = null
+    private var editingMessage: Message? = null
+    private lateinit var replyPreview: View
+    private lateinit var replyMessagePreview: android.widget.TextView
+    private lateinit var cancelReply: com.google.android.material.button.MaterialButton
 
     private lateinit var matchId: String
     private lateinit var myId: String
@@ -66,6 +75,13 @@ class ChatFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recycler_chat)
         inputEditText = view.findViewById(R.id.input)
         sendButton = view.findViewById(R.id.send)
+        replyPreview = view.findViewById(R.id.reply_preview)
+        replyMessagePreview = view.findViewById(R.id.reply_message_preview)
+        cancelReply = view.findViewById(R.id.cancel_reply)
+        pinnedRecyclerView = view.findViewById(R.id.pinned_messages_recycler)
+        pinnedContainer = view.findViewById(R.id.pinned_messages_container)
+        
+        cancelReply.setOnClickListener { clearReplyEdit() }
         
         // Setup header
         setupHeader(view)
@@ -81,10 +97,6 @@ class ChatFragment : Fragment() {
     }
     
     private fun setupHeader(view: View) {
-        view.findViewById<android.widget.ImageButton>(R.id.back_button)?.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-        
         view.findViewById<android.view.View>(R.id.partner_photo)?.setOnClickListener {
             val partnerId = matchId.split("_").firstOrNull { it != myId }
             if (partnerId != null) {
@@ -138,41 +150,75 @@ class ChatFragment : Fragment() {
             return
         }
 
-        // Check if I blocked the partner
-        firestore.collection("blocks").document(myId).get()
+        // Check if both users still like each other
+        firestore.collection("swipes").document(myId).get()
             .addOnSuccessListener { myDoc ->
                 @Suppress("UNCHECKED_CAST")
-                val myBlockedUsers = myDoc.get("blockedUsers") as? List<String> ?: emptyList()
+                val myLiked = myDoc.get("liked") as? List<String> ?: emptyList()
                 
-                if (myBlockedUsers.contains(partnerId)) {
-                    Toast.makeText(requireContext(), "You have blocked this user", Toast.LENGTH_LONG).show()
+                if (!myLiked.contains(partnerId)) {
+                    Toast.makeText(requireContext(), "Match no longer valid", Toast.LENGTH_LONG).show()
                     parentFragmentManager.popBackStack()
                     return@addOnSuccessListener
                 }
-
-                // Check if partner blocked me
-                firestore.collection("blocks").document(partnerId).get()
+                
+                firestore.collection("swipes").document(partnerId).get()
                     .addOnSuccessListener { partnerDoc ->
                         @Suppress("UNCHECKED_CAST")
-                        val partnerBlockedUsers = partnerDoc.get("blockedUsers") as? List<String> ?: emptyList()
+                        val partnerLiked = partnerDoc.get("liked") as? List<String> ?: emptyList()
                         
-                        if (partnerBlockedUsers.contains(myId)) {
-                            Toast.makeText(requireContext(), "You cannot chat with this user", Toast.LENGTH_LONG).show()
+                        if (!partnerLiked.contains(myId)) {
+                            Toast.makeText(requireContext(), "Match no longer valid", Toast.LENGTH_LONG).show()
                             parentFragmentManager.popBackStack()
-                        } else {
-                            setupSendButton()
-                            startChatListener()
+                            return@addOnSuccessListener
                         }
+                        
+                        // Check if I blocked the partner
+                        firestore.collection("blocks").document(myId).get()
+                            .addOnSuccessListener { myBlockDoc ->
+                                @Suppress("UNCHECKED_CAST")
+                                val myBlockedUsers = myBlockDoc.get("blockedUsers") as? List<String> ?: emptyList()
+                                
+                                if (myBlockedUsers.contains(partnerId)) {
+                                    Toast.makeText(requireContext(), "You have blocked this user", Toast.LENGTH_LONG).show()
+                                    parentFragmentManager.popBackStack()
+                                    return@addOnSuccessListener
+                                }
+
+                                // Check if partner blocked me
+                                firestore.collection("blocks").document(partnerId).get()
+                                    .addOnSuccessListener { partnerBlockDoc ->
+                                        @Suppress("UNCHECKED_CAST")
+                                        val partnerBlockedUsers = partnerBlockDoc.get("blockedUsers") as? List<String> ?: emptyList()
+                                        
+                                        if (partnerBlockedUsers.contains(myId)) {
+                                            Toast.makeText(requireContext(), "You cannot chat with this user", Toast.LENGTH_LONG).show()
+                                            parentFragmentManager.popBackStack()
+                                        } else {
+                                            setupSendButton()
+                                            startChatListener()
+                                        }
+                                    }
+                            }
                     }
             }
     }
 
     private fun setupRecyclerView() {
-        chatAdapter = ChatAdapter(requireContext(), messages, myId) { message, position ->
-            deleteMessage(message, position)
-        }
+        chatAdapter = ChatAdapter(requireContext(), messages, myId,
+            onDeleteMessage = { message, position -> deleteMessage(message, position) },
+            onReplyMessage = { message -> startReply(message) },
+            onEditMessage = { message -> startEdit(message) },
+            onPinMessage = { message -> togglePinMessage(message) }
+        )
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = chatAdapter
+        
+        pinnedAdapter = ChatAdapter(requireContext(), pinnedMessages, myId,
+            onPinMessage = { message -> togglePinMessage(message) }
+        )
+        pinnedRecyclerView.layoutManager = LinearLayoutManager(context)
+        pinnedRecyclerView.adapter = pinnedAdapter
     }
 
     private fun deleteMessage(message: Message, position: Int) {
@@ -199,8 +245,13 @@ class ChatFragment : Fragment() {
         sendButton.setOnClickListener {
             val text = inputEditText.text.toString().trim()
             if (text.isNotEmpty()) {
-                sendMessage(text)
+                when {
+                    editingMessage != null -> editMessage(text)
+                    replyingTo != null -> sendReply(text)
+                    else -> sendMessage(text)
+                }
                 inputEditText.text.clear()
+                clearReplyEdit()
             }
         }
     }
@@ -210,18 +261,17 @@ class ChatFragment : Fragment() {
         val msg = mapOf(
             "senderId" to myId,
             "text" to text,
-            "timestamp" to FieldValue.serverTimestamp()
+            "timestamp" to FieldValue.serverTimestamp(),
+            "messageId" to chatsRef.document().id
         )
 
         chatsRef.add(msg).addOnSuccessListener {
             Log.d(TAG, "Message sent successfully")
-            // Update the last message in the match document
             firestore.collection("matches").document(matchId).update(mapOf(
                 "lastMessage" to text,
                 "timestamp" to FieldValue.serverTimestamp()
             ))
             
-            // Send notification to partner
             val partnerId = matchId.split("_").firstOrNull { it != myId }
             if (partnerId != null) {
                 sendMessageNotification(partnerId, text)
@@ -229,6 +279,81 @@ class ChatFragment : Fragment() {
         }.addOnFailureListener { e ->
             Log.e(TAG, "Error sending message", e)
             Toast.makeText(context, "Failed to send message.", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun sendReply(text: String) {
+        val replyMsg = replyingTo ?: return
+        val chatsRef = firestore.collection("matches").document(matchId).collection("chats")
+        val msg = mapOf(
+            "senderId" to myId,
+            "text" to text,
+            "timestamp" to FieldValue.serverTimestamp(),
+            "replyTo" to replyMsg.messageId,
+            "replyText" to replyMsg.text,
+            "messageId" to chatsRef.document().id
+        )
+
+        chatsRef.add(msg).addOnSuccessListener {
+            firestore.collection("matches").document(matchId).update(mapOf(
+                "lastMessage" to text,
+                "timestamp" to FieldValue.serverTimestamp()
+            ))
+        }
+    }
+    
+    private fun editMessage(newText: String) {
+        val editMsg = editingMessage ?: return
+        val chatsRef = firestore.collection("matches").document(matchId).collection("chats")
+        
+        chatsRef.whereEqualTo("senderId", editMsg.senderId)
+            .whereEqualTo("text", editMsg.text)
+            .whereEqualTo("timestamp", editMsg.timestamp)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                for (doc in snapshots.documents) {
+                    doc.reference.update(mapOf(
+                        "text" to newText,
+                        "edited" to true
+                    ))
+                }
+            }
+    }
+    
+    private fun startReply(message: Message) {
+        replyingTo = message
+        replyPreview.visibility = View.VISIBLE
+        replyMessagePreview.text = message.text
+        inputEditText.requestFocus()
+    }
+    
+    private fun startEdit(message: Message) {
+        editingMessage = message
+        inputEditText.setText(message.text)
+        inputEditText.hint = "Editing message..."
+    }
+    
+    private fun togglePinMessage(message: Message) {
+        val chatsRef = firestore.collection("matches").document(matchId).collection("chats")
+        
+        chatsRef.whereEqualTo("senderId", message.senderId)
+            .whereEqualTo("text", message.text)
+            .whereEqualTo("timestamp", message.timestamp)
+            .get()
+            .addOnSuccessListener { snapshots ->
+                for (doc in snapshots.documents) {
+                    doc.reference.update("pinned", !message.pinned)
+                }
+            }
+    }
+    
+    private fun clearReplyEdit() {
+        replyingTo = null
+        editingMessage = null
+        replyPreview.visibility = View.GONE
+        inputEditText.hint = "Type a message..."
+        if (editingMessage != null) {
+            inputEditText.text.clear()
         }
     }
     
@@ -254,9 +379,24 @@ class ChatFragment : Fragment() {
                 if (snapshots != null) {
                     val newMessages = snapshots.toObjects(Message::class.java)
                     messages.clear()
-                    messages.addAll(newMessages)
+                    pinnedMessages.clear()
+                    
+                    for (message in newMessages) {
+                        if (message.pinned) {
+                            pinnedMessages.add(message)
+                        } else {
+                            messages.add(message)
+                        }
+                    }
+                    
                     chatAdapter.notifyDataSetChanged()
-                    recyclerView.scrollToPosition(messages.size - 1)
+                    pinnedAdapter.notifyDataSetChanged()
+                    
+                    pinnedContainer.visibility = if (pinnedMessages.isNotEmpty()) View.VISIBLE else View.GONE
+                    
+                    if (messages.isNotEmpty()) {
+                        recyclerView.scrollToPosition(messages.size - 1)
+                    }
                 }
             }
     }

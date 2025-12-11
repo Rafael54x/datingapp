@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_gray">#FF888888</color>
+    <color name="light_pink">#FFF5F7</color>
+    <color name="primary">#db636f</color>
+    <color name="pink">#db636f</color>
+    <color name="background">#121212</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="card_background">#2D2D2D</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3B3B3</color>
+    <color name="colorOutlineVariant">#404040</color>
+    <color name="colorSurfaceVariant">#2D2D2D</color>
+    <color name="back_button_tint">#FFFFFF</color>
+</resources>

@@ -4,32 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_pink"
+    android:background="@color/background"
     tools:context=".fragments.HomeFragment">
 
-    <LinearLayout
-        android:id="@+id/top_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="end">
 
-        <ImageButton
-            android:id="@+id/filter_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_filter"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Filter"/>
-
-    </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_bar"
+        android:layout_alignParentTop="true"
         android:layout_above="@+id/buttons_container">
 
         <com.yuyakaido.android.cardstackview.CardStackView
@@ -52,7 +36,7 @@
         android:layout_marginBottom="24dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="#FFFFFF">
+        app:cardBackgroundColor="@color/surface">
 
         <LinearLayout
             android:id="@+id/buttons_layout"
@@ -63,22 +47,7 @@
             android:paddingVertical="20dp"
             android:paddingHorizontal="16dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                app:cardCornerRadius="30dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFF3E0">
 
-                <ImageButton
-                    android:id="@+id/undo_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_undo"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:scaleType="centerInside"
-                    android:padding="14dp" />
-            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="70dp"
@@ -95,7 +64,8 @@
                     android:src="@drawable/ic_dislike"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:scaleType="centerInside"
-                    android:padding="16dp" />
+                    android:padding="16dp"
+                    app:tint="#424242" />
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
@@ -112,7 +82,8 @@
                     android:src="@drawable/data_loss_prevention_41dp_434343_fill0_wght400_grad0_opsz40"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:scaleType="centerInside"
-                    android:padding="14dp"/>
+                    android:padding="14dp"
+                    app:tint="#424242"/>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
