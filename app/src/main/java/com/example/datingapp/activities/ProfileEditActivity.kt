@@ -1,7 +1,9 @@
 package com.example.datingapp.activities
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -9,12 +11,19 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
+import com.example.datingapp.R
 import com.example.datingapp.databinding.ActivityEditProfileBinding
 import com.example.datingapp.models.Gender
 import com.example.datingapp.models.Jurusan
@@ -59,8 +68,11 @@ class ProfileEditActivity : AppCompatActivity() {
     private var lastPredictedClass: String? = null
     private var selectedImageUri: Uri? = null
     private var currentPhotoUrl: String? = null
+    private var cameraImageUri: Uri? = null
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
+    private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
+    private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +89,7 @@ class ProfileEditActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
 
         if (auth.currentUser == null) {
-            Toast.makeText(this, "User not logged in. Redirecting...", Toast.LENGTH_LONG).show()
+            showCustomToast("User not logged in. Redirecting...")
             finish()
             return
         }
@@ -96,7 +108,7 @@ class ProfileEditActivity : AppCompatActivity() {
         firestore.collection("users").document(userId).get()
             .addOnSuccessListener { doc ->
                 if (!doc.exists()) {
-                    Toast.makeText(this, "User data not found.", Toast.LENGTH_SHORT).show()
+                    showCustomToast("User data not found.")
                     return@addOnSuccessListener
                 }
                 val data = doc.data ?: return@addOnSuccessListener
@@ -138,19 +150,19 @@ class ProfileEditActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to load profile: ${e.message}", Toast.LENGTH_SHORT).show()
+                showCustomToast("Failed to load profile: ${e.message}")
             }
     }
 
     private fun saveUserData() {
         if (selectedImageUri != null && lastPredictedClass != "Ori") {
-            Toast.makeText(this, "Cannot save profile. The uploaded photo is not original.", Toast.LENGTH_LONG).show()
+            showCustomToast("Cannot save profile. The uploaded photo is not original.")
             return
         }
 
         val age = binding.editAge.text.toString().trim()
         if (age.toIntOrNull() == null || age.toInt() < 17) {
-            Toast.makeText(this, "Minimum age is 17", Toast.LENGTH_SHORT).show()
+            showCustomToast("Minimum age is 17")
             return
         }
 
@@ -163,7 +175,7 @@ class ProfileEditActivity : AppCompatActivity() {
             if (file == null) {
                 binding.progressBar.visibility = android.view.View.GONE
                 binding.save.isEnabled = true
-                Toast.makeText(this, "Failed to process image file.", Toast.LENGTH_SHORT).show()
+                showCustomToast("Failed to process image file.")
                 return
             }
             uploadToCloudinary(
@@ -177,7 +189,7 @@ class ProfileEditActivity : AppCompatActivity() {
                     } else {
                         binding.progressBar.visibility = android.view.View.GONE
                         binding.save.isEnabled = true
-                        Toast.makeText(this, "Upload failed", Toast.LENGTH_SHORT).show()
+                        showCustomToast("Upload failed")
                     }
                 }
             }
@@ -221,13 +233,13 @@ class ProfileEditActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 binding.progressBar.visibility = android.view.View.GONE
                 binding.save.isEnabled = true
-                Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                showCustomToast("Profile updated successfully!")
                 finish()
             }
             .addOnFailureListener { e ->
                 binding.progressBar.visibility = android.view.View.GONE
                 binding.save.isEnabled = true
-                Toast.makeText(this, "Failed to update profile: ${e.message}", Toast.LENGTH_SHORT).show()
+                showCustomToast("Failed to update profile: ${e.message}")
             }
     }
 
@@ -298,8 +310,32 @@ class ProfileEditActivity : AppCompatActivity() {
                     runInference(argb8888Bitmap)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error processing image from URI: ${e.message}")
-                    Toast.makeText(this, "Error: Failed to load image.", Toast.LENGTH_SHORT).show()
+                    showCustomToast("Error: Failed to load image.")
                 }
+            }
+        }
+        
+        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success && cameraImageUri != null) {
+                selectedImageUri = cameraImageUri
+                try {
+                    val originalBitmap = uriToBitmap(cameraImageUri!!)
+                    val argb8888Bitmap = convertToARGB8888(originalBitmap)
+
+                    binding.profileImage.setImageBitmap(argb8888Bitmap)
+                    runInference(argb8888Bitmap)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing camera image: ${e.message}")
+                    showCustomToast("Error: Failed to load camera image.")
+                }
+            }
+        }
+        
+        cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                launchCamera()
+            } else {
+                showCustomToast("Camera permission required to take photos")
             }
         }
     }
@@ -397,7 +433,52 @@ class ProfileEditActivity : AppCompatActivity() {
     }
 
     private fun pickImageFromGallery() {
+        showImageSourceDialog()
+    }
+    
+    private fun showImageSourceDialog() {
+        val options = arrayOf("Gallery", "Camera", "Storage")
+        AlertDialog.Builder(this)
+            .setTitle("Choose Photo Source")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> openGallery()
+                    1 -> openCamera()
+                    2 -> openStorage()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickImageLauncher.launch(intent)
+    }
+    
+    private fun openCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            launchCamera()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+    
+    private fun launchCamera() {
+        val photoFile = File(cacheDir, "camera_photo_${System.currentTimeMillis()}.jpg")
+        cameraImageUri = FileProvider.getUriForFile(
+            this,
+            "${packageName}.fileprovider",
+            photoFile
+        )
+        cameraImageUri?.let { uri ->
+            takePictureLauncher.launch(uri)
+        }
+    }
+    
+    private fun openStorage() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
         pickImageLauncher.launch(intent)
     }
 
@@ -427,10 +508,10 @@ class ProfileEditActivity : AppCompatActivity() {
                 addMajorChip(majorName)
                 binding.addMajorPreference.text.clear()
             } else {
-                Toast.makeText(this, "Major already added.", Toast.LENGTH_SHORT).show()
+                showCustomToast("Major already added.")
             }
         } else {
-            Toast.makeText(this, "Please select a valid major.", Toast.LENGTH_SHORT).show()
+            showCustomToast("Please select a valid major.")
         }
     }
 
@@ -445,6 +526,19 @@ class ProfileEditActivity : AppCompatActivity() {
 
     private fun createArrayAdapter(items: List<String>): ArrayAdapter<String> {
         return ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
+    }
+    
+    private fun showCustomToast(message: String) {
+        val inflater = layoutInflater
+        val layout = inflater.inflate(R.layout.custom_toast, null)
+        
+        val text = layout.findViewById<TextView>(R.id.toast_text)
+        text.text = message
+        
+        val toast = Toast(this)
+        toast.duration = Toast.LENGTH_LONG
+        toast.view = layout
+        toast.show()
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -12,16 +12,6 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <ImageButton
-            android:id="@+id/back_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_back"
-            android:contentDescription="Back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <!-- Profile Header -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/profile_image_layout"
