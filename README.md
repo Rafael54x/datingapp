@@ -438,6 +438,53 @@ git push origin feature/your-feature-name
 
 ---
 
+<div align="center">
+  <p><strong>Made with ❤️ by UMN Students for UMN Students</strong></p>
+  <p><em>Connecting Hearts, Building Futures</em></p>
+</div>
+
+---
+
+## 🔥 Firebase Integration
+
+### Firestore Collections
+```
+users/
+  {userId}/
+    - uid, username, name, email, bio, age
+    - schoolyear, gender, major, photoUrl
+    - photoVerified (boolean)
+    - preference { gender, yearPreferences, majorPreferences }
+
+matches/
+  {matchId}/
+    - users: [userId1, userId2]
+    - timestamp, lastMessage
+    chats/
+      {chatId}/
+        - senderId, text, timestamp
+
+swipes/
+  {userId}/
+    - liked: [userIds]
+    - passed: [userIds]
+
+blocks/
+  {userId}/
+    - blockedUsers: [userIds]
+
+favorites/
+  {userId}/
+    - favoriteUsers: [userIds]
+
+# Note: Passed users are stored in swipes collection under 'passed' field
+```
+
+### Security Rules
+See `FIREBASE_SETUP.md` for detailed Firestore security rules configuration.
+
+---
+
 ## 📋 Project Status
 
 ### ✅ Completed Features
@@ -483,53 +530,6 @@ We welcome contributions from the UMN community! Please follow these steps:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-<div align="center">
-  <p><strong>Made with ❤️ by UMN Students for UMN Students</strong></p>
-  <p><em>Connecting Hearts, Building Futures</em></p>
-</div>
-
----
-
-## 🔥 Firebase Integration
-
-### Firestore Collections
-```
-users/
-  {userId}/
-    - uid, username, name, email, bio, age
-    - schoolyear, gender, major, photoUrl
-    - photoVerified (boolean)
-    - preference { gender, yearPreferences, majorPreferences }
-
-matches/
-  {matchId}/
-    - users: [userId1, userId2]
-    - timestamp, lastMessage
-    chats/
-      {chatId}/
-        - senderId, text, timestamp
-
-swipes/
-  {userId}/
-    - liked: [userIds]
-    - passed: [userIds]
-
-blocks/
-  {userId}/
-    - blockedUsers: [userIds]
-
-favorites/
-  {userId}/
-    - favoriteUsers: [userIds]
-
-# Note: Passed users are stored in swipes collection under 'passed' field
-```
-
-### Security Rules
-See `FIREBASE_SETUP.md` for detailed Firestore security rules configuration.
 
 ---
 
