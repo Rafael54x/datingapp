@@ -13,6 +13,153 @@
 
 ---
 
+## 🧪 Testing Account
+
+**For testing purposes, use this pre-configured account:**
+
+📧 **Email:** `rafael.natanael46@gmail.com`  
+🔑 **Password:** `Test1234_`
+
+> **Note:** This account has sample data and matches for demonstration purposes.
+
+---
+
+## 👥 Development Team
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="https://github.com/Felicia625.png" width="100px;" alt="Felicia"/><br />
+      <sub><b>Felicia Sabatini Gunawan</b></sub><br />
+      <sub>00000093843</sub><br />
+    </td>
+    <td align="center">
+      <img src="https://github.com/Frendhy.png" width="100px;" alt="Frendhy"/><br />
+      <sub><b>Frendhy Zhuang</b></sub><br />
+      <sub>00000092876</sub><br />
+    </td>
+    <td align="center">
+      <img src="https://github.com/Rafael54x.png" width="100px;" alt="Rafael"/><br />
+      <sub><b>Rafael Natanael</b></sub><br />
+      <sub>00000093739</sub><br />
+    </td>
+    <td align="center">
+      <img src="https://github.com/seronnnn.png" width="100px;" alt="Sharon"/><br />
+      <sub><b>Sharon Tionardi</b></sub><br />
+      <sub>00000095084</sub><br />
+    </td>
+  </tr>
+</table>
+
+---
+
+## 📖 How to Use This App - Step by Step Guide
+
+### 🚀 **Getting Started**
+
+1. **Download & Install** the APK or run from Android Studio
+2. **Launch the app** - You'll see the splash screen followed by onboarding
+3. **Skip Tutorial** (optional) or follow the interactive guide
+4. **Login** with the testing account above or create a new account
+
+### 🔐 **Account Setup (New Users)**
+
+1. **Register** with @student.umn.ac.id email (for new accounts)
+2. **Verify Email** - Check your inbox and click verification link
+3. **Complete Profile:**
+   - Add profile photo (Gallery/Camera/Storage options)
+   - Fill in bio, age (minimum 17), school year, major
+   - Set preferences: gender, year range, major preferences
+4. **Save Profile** - Your photo will be verified for authenticity
+
+### 🏠 **Home Screen - Finding Matches**
+
+1. **Swipe Cards:**
+   - **Swipe Right** or tap ❤️ to **Like**
+   - **Swipe Left** or tap ❌ to **Pass**
+2. **View Profile Details** - Tap on the card to see full profile
+3. **Get Matches** - When both users like each other, it's a match!
+4. **Refresh** - Pull down to load new potential matches
+
+### 💬 **Chat System**
+
+1. **Access Chats** - Tap "Chat" in bottom navigation
+2. **Start Conversation** - Tap on any match to open chat
+3. **Send Messages** - Type and send real-time messages
+4. **Reply to Messages** - Swipe right on any message to reply
+5. **Delete Messages** - Long-press your own messages to delete
+6. **View Partner Profile** - Tap partner's name/photo in chat header
+
+### 🔍 **Match Management**
+
+1. **View All Matches** - Go to "Match" tab
+2. **Search Matches** - Use search bar to find specific matches
+3. **Filter by Tabs:**
+   - **Active:** Mutual matches (both liked each other)
+   - **Inactive:** One-sided likes
+   - **Blocked:** Blocked users
+4. **Manage Matches:**
+   - **Add to Favorites:** Long-press → "Add to Favorites"
+   - **Block User:** Long-press → "Block"
+   - **Filter Favorites:** Tap star icon to show only favorites
+
+### ❤️ **Likes Management**
+
+1. **See Who Liked You** - Go to "Likes" tab
+2. **View Your Likes** - Switch to "My Likes" tab
+3. **Like Back** - Tap ❤️ on users who liked you to create matches
+4. **View Passed Users** - See users you've passed on and "unpass" them
+
+### 👤 **Profile Management**
+
+1. **Edit Profile** - Go to "Profile" tab → "Edit Profile"
+2. **Update Information:**
+   - Change photo (Gallery/Camera/Storage)
+   - Update bio, age, school year
+   - Modify major and preferences
+3. **Change Password** - Requires current password verification
+4. **Account Settings:**
+   - Toggle dark/light mode
+   - Access help and terms
+   - Delete account (if needed)
+
+### 🎛️ **Advanced Features**
+
+1. **Block/Unblock Users:**
+   - Long-press any match → "Block"/"Unblock"
+   - Blocked users won't see you or message you
+
+2. **Favorites System:**
+   - Long-press matches to add/remove favorites
+   - Use star filter to view only favorite matches
+
+3. **Search & Filter:**
+   - Real-time search in match list
+   - Filter by match status (Active/Inactive/Blocked)
+
+4. **Settings & Customization:**
+   - Dark mode toggle
+   - Help & guide access
+   - Terms & conditions
+
+### 🆘 **Troubleshooting**
+
+- **No Matches Appearing?** Check your preferences and try refreshing
+- **Can't Send Messages?** Ensure you're matched and not blocked
+- **Photo Upload Issues?** Try different source (Gallery/Camera/Storage)
+- **Login Problems?** Use forgot password or contact support
+
+### 💡 **Pro Tips**
+
+- **Complete your profile** for better matches
+- **Use high-quality, original photos** for verification
+- **Be active** - regular swiping increases visibility
+- **Engage in conversations** to build connections
+- **Use favorites** to keep track of important matches
+- **Adjust preferences** to find compatible matches
+
+---
+
 ## 📱 About The Project
 
 UMNDatingApp is a modern, intuitive dating application specifically designed for Universitas Multimedia Nusantara (UMN) students. The app provides a seamless platform for students to connect, match, and build meaningful relationships within the university community.
@@ -260,35 +407,6 @@ app/src/main/java/com/example/datingapp/
 - **Registration Requirement:** Must agree to terms during signup
 - **Easy Access:** Available from settings and registration
 - **Dedicated Activity:** Full-screen terms viewing
-
----
-
-## 👥 Development Team
-
-<table align="center">
-  <tr>
-    <td align="center">
-      <img src="https://github.com/Felicia625.png" width="100px;" alt="Felicia"/><br />
-      <sub><b>Felicia Sabatini Gunawan</b></sub><br />
-      <sub>00000093843</sub><br />
-    </td>
-    <td align="center">
-      <img src="https://github.com/Frendhy.png" width="100px;" alt="Frendhy"/><br />
-      <sub><b>Frendhy Zhuang</b></sub><br />
-      <sub>00000092876</sub><br />
-    </td>
-    <td align="center">
-      <img src="https://github.com/Rafael54x.png" width="100px;" alt="Rafael"/><br />
-      <sub><b>Rafael Natanael</b></sub><br />
-      <sub>00000093739</sub><br />
-    </td>
-    <td align="center">
-      <img src="https://github.com/seronnnn.png" width="100px;" alt="Sharon"/><br />
-      <sub><b>Sharon Tionardi</b></sub><br />
-      <sub>00000095084</sub><br />
-    </td>
-  </tr>
-</table>
 
 ---
 
