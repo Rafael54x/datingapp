@@ -438,13 +438,6 @@ git push origin feature/your-feature-name
 
 ---
 
-<div align="center">
-  <p><strong>Made with ❤️ by UMN Students for UMN Students</strong></p>
-  <p><em>Connecting Hearts, Building Futures</em></p>
-</div>
-
----
-
 ## 🔥 Firebase Integration
 
 ### Firestore Collections
@@ -524,6 +517,13 @@ We welcome contributions from the UMN community! Please follow these steps:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+---
+
+<div align="center">
+  <p><strong>Made with ❤️ by UMN Students for UMN Students</strong></p>
+  <p><em>Connecting Hearts, Building Futures</em></p>
+</div>
 
 ---
 
